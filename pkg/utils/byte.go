@@ -1,4 +1,4 @@
-package util
+package utils
 
 import (
 	"errors"
@@ -11,9 +11,6 @@ const (
 	KILOBYTE
 	MEGABYTE
 	GIGABYTE
-	TERABYTE
-	PETABYTE
-	EXABYTE
 )
 
 var invalidByteQuantityError = errors.New("byte quantity must be a positive integer with a unit of measurement like M, MB, MiB, G, GiB, or GB")

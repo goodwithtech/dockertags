@@ -2,9 +2,10 @@ package dockerhub
 
 import (
 	"context"
-	"fmt"
+
 	"time"
 
+	"github.com/goodwithtech/image-tag-sorter/pkg/log"
 	"github.com/goodwithtech/image-tag-sorter/pkg/types"
 
 	dockertypes "github.com/docker/cli/cli/config/types"
@@ -60,8 +61,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, option t
 // Tags returns the tags for a specific repository.
 func Tags(ctx context.Context, r *registry.Registry, repository string) ([]ImageSummary, error) {
 	url := r.Url("/v2/repositories/%s/tags/", repository)
-	fmt.Printf("registry.tags url=%s repository=%s", url, repository)
-
+	log.Logger.Debugf("url=%s,repository=%s", url, repository)
 	var response tagsResponse
 	if _, err := r.GetJSON(ctx, url, &response); err != nil {
 		return nil, err

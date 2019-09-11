@@ -2,9 +2,10 @@ package ecr
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/goodwithtech/image-tag-sorter/pkg/log"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 
@@ -62,18 +63,16 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, option types.A
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			case service.ErrCodeServerException:
-				fmt.Println(service.ErrCodeServerException, aerr.Error())
+				log.Logger.Errorf(service.ErrCodeServerException, aerr.Error())
 			case service.ErrCodeInvalidParameterException:
-				fmt.Println(service.ErrCodeInvalidParameterException, aerr.Error())
+				log.Logger.Errorf(service.ErrCodeInvalidParameterException, aerr.Error())
 			case service.ErrCodeRepositoryNotFoundException:
-				fmt.Println(service.ErrCodeRepositoryNotFoundException, aerr.Error())
+				log.Logger.Errorf(service.ErrCodeRepositoryNotFoundException, aerr.Error())
 			default:
-				fmt.Println(aerr.Error())
+				log.Logger.Errorf(aerr.Error())
 			}
 		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
+			log.Logger.Error(err.Error())
 		}
 		return nil, err
 	}

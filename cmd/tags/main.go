@@ -1,62 +1,55 @@
 package main
 
 import (
-	"fmt"
+	l "log"
 	"os"
-	"strings"
-	"time"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/util"
+	"github.com/goodwithtech/image-tag-sorter/pkg"
+	"github.com/goodwithtech/image-tag-sorter/pkg/log"
+	"github.com/urfave/cli"
+)
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
-	"github.com/olekukonko/tablewriter"
-
-	"github.com/goodwithtech/image-tag-sorter/pkg/provider"
+var (
+	version = "dev"
 )
 
 func main() {
+	cli.AppHelpTemplate = `NAME:
+  {{.Name}}{{if .Usage}} - {{.Usage}}{{end}}
+USAGE:
+  {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} {{if .VisibleFlags}}[options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Version}}{{if not .HideVersion}}
+VERSION:
+  {{.Version}}{{end}}{{end}}{{if .Description}}
+DESCRIPTION:
+  {{.Description}}{{end}}{{if len .Authors}}
+AUTHOR{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
+  {{range $index, $author := .Authors}}{{if $index}}
+  {{end}}{{$author}}{{end}}{{end}}{{if .VisibleCommands}}
+OPTIONS:
+  {{range $index, $option := .VisibleFlags}}{{if $index}}
+  {{end}}{{$option}}{{end}}{{end}}
+`
+	app := cli.NewApp()
+	app.Name = "dockertags"
+	app.Version = version
+	app.ArgsUsage = "image_name"
 
-	image := "goodwithtech/dockle"
-	opt := types.AuthOption{
-		Timeout: time.Second * 10,
+	app.Usage = "Fetch docker tags informations"
+
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "debug, d",
+			Usage: "debug mode",
+		},
 	}
-	tags, err := provider.Exec(image, opt)
+
+	app.Action = pkg.Run
+	err := app.Run(os.Args)
+
 	if err != nil {
-		fmt.Println("err", err)
+		if log.Logger != nil {
+			log.Fatal(err)
+		}
+		l.Fatal(err)
 	}
-
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Full", "Tag", "Size", "Created At", "Uploaded At"})
-
-	for _, tag := range tags {
-		table.Append([]string{
-			getFullPath(image, tag.Tags),
-			strings.Join(tag.Tags, ","),
-			getBytesize(tag.Byte),
-			ttos(tag.CreatedAt),
-			ttos(tag.UploadedAt),
-		})
-	}
-	table.Render()
-
-}
-func getFullPath(image string, tags []string) string {
-	if len(tags) == 0 {
-		return "NO TAGGED"
-	}
-	return image + ":" + tags[0]
-}
-
-func getBytesize(b *int) string {
-	if b == nil {
-		return "-"
-	}
-	return util.ByteSize(*b)
-}
-
-func ttos(t *time.Time) string {
-	if t == nil {
-		return "NULL"
-	}
-	return (*t).Format(time.RFC3339)
 }

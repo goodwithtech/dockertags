@@ -2,9 +2,10 @@ package gcr
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/goodwithtech/image-tag-sorter/pkg/log"
 
 	"github.com/goodwithtech/image-tag-sorter/pkg/types"
 
@@ -43,7 +44,7 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, option types.A
 	}
 	auth.Username, auth.Password, err = p.getCredential(ctx)
 	if err != nil {
-		fmt.Println("cant get credential")
+		log.Logger.Debug("Fail to get gcp credential")
 		//return nil, err
 	}
 
@@ -94,7 +95,7 @@ func stringMStoTime(msstring string) (time.Time, error) {
 // getTags returns the tags
 func (p *GCR) getTags(ctx context.Context, repository string) (map[string]ManifestSummary, error) {
 	url := p.registry.Url("/v2/%s/tags/list", repository)
-	fmt.Printf("registry.tags url=%s repository=%s\n", url, repository)
+	log.Logger.Debugf("url=%s,repository=%s", url, repository)
 
 	var response tagsResponse
 	if _, err := p.registry.GetJSON(ctx, url, &response); err != nil {
