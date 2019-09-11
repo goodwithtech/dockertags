@@ -1,7 +1,7 @@
 project_name: dockertags
 builds:
-  - main: cmd/tags/main.go
-    binary: dockle
+  - main: cmd/dockertags/main.go
+    binary: dockertags
     ldflags:
       - -s -w
       - "-extldflags '-static'"
