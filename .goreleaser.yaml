@@ -71,7 +71,7 @@ brews:
   -
     github:
       owner: goodwithtech
-      name: homebrew-dockertags
+      name: homebrew-r
     folder: Formula
     homepage: "https://github.com/goodwithtech/dockertags"
     description: "docker container tag viewer"
