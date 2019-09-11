@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -32,6 +33,9 @@ func Run(c *cli.Context) (err error) {
 	err = nil
 	args := c.Args()
 	image := args[0]
+	if image == "" {
+		return fmt.Errorf("input any image name")
+	}
 	opt := types.AuthOption{
 		Timeout: time.Second * 10,
 	}
