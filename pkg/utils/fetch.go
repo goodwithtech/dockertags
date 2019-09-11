@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg/log"
 
 	"golang.org/x/xerrors"
 

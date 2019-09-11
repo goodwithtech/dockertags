@@ -5,12 +5,12 @@ import (
 
 	"time"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
+	"github.com/goodwithtech/dockertags/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg/types"
 
 	dockertypes "github.com/docker/cli/cli/config/types"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/registry"
+	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
 type DockerHub struct {

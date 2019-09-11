@@ -5,11 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg/log"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
+	"github.com/goodwithtech/dockertags/pkg/types"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 

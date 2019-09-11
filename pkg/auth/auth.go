@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg/log"
 
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/cli/cli/config/types"

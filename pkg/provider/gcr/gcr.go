@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg/log"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
+	"github.com/goodwithtech/dockertags/pkg/types"
 
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/config"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/credhelper"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/store"
 	dockertypes "github.com/docker/cli/cli/config/types"
-	"github.com/goodwithtech/image-tag-sorter/pkg/registry"
+	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
 type GCR struct {

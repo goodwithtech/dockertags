@@ -5,13 +5,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/image"
+	"github.com/goodwithtech/dockertags/pkg/image"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
+	"github.com/goodwithtech/dockertags/pkg/types"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/provider/dockerhub"
-	"github.com/goodwithtech/image-tag-sorter/pkg/provider/ecr"
-	"github.com/goodwithtech/image-tag-sorter/pkg/provider/gcr"
+	"github.com/goodwithtech/dockertags/pkg/provider/dockerhub"
+	"github.com/goodwithtech/dockertags/pkg/provider/ecr"
+	"github.com/goodwithtech/dockertags/pkg/provider/gcr"
 )
 
 const (

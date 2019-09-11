@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
-	"github.com/goodwithtech/image-tag-sorter/pkg/provider"
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
-	"github.com/goodwithtech/image-tag-sorter/pkg/utils"
+	"github.com/goodwithtech/dockertags/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg/provider"
+	"github.com/goodwithtech/dockertags/pkg/types"
+	"github.com/goodwithtech/dockertags/pkg/utils"
 	"github.com/olekukonko/tablewriter"
 
 	l "log"

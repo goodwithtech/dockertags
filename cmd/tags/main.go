@@ -4,8 +4,8 @@ import (
 	l "log"
 	"os"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg"
-	"github.com/goodwithtech/image-tag-sorter/pkg/log"
+	"github.com/goodwithtech/dockertags/pkg"
+	"github.com/goodwithtech/dockertags/pkg/log"
 	"github.com/urfave/cli"
 )
 

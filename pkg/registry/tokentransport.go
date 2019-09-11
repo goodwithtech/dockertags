@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/goodwithtech/image-tag-sorter/pkg/types"
+	"github.com/goodwithtech/dockertags/pkg/types"
 )
 
 var gcrMatcher = regexp.MustCompile(`https://([a-z]+\.|)gcr\.io/`)
