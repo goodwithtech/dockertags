@@ -28,9 +28,10 @@ type tagsResponse struct {
 }
 
 type ManifestSummary struct {
-	Tag        []string `json:"tag"`
-	CreatedMS  string   `json:"timeCreatedMs"`
-	UploadedMS string   `json:"timeUploadedMs"`
+	Tag            []string `json:"tag"`
+	ImageSizeBytes string   `json:"imageSizeBytes"`
+	CreatedMS      string   `json:"timeCreatedMs"`
+	UploadedMS     string   `json:"timeUploadedMs"`
 }
 
 func (p *GCR) Run(ctx context.Context, domain, repository string, option types.AuthOption) (imageTags types.ImageTags, err error) {
@@ -73,6 +74,7 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, option types.A
 
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       detail.Tag,
+			Byte:       getIntByte(detail.ImageSizeBytes),
 			CreatedAt:  &createdAt,
 			UploadedAt: &uploadedAt,
 		})
@@ -92,7 +94,7 @@ func stringMStoTime(msstring string) (time.Time, error) {
 // getTags returns the tags
 func (p *GCR) getTags(ctx context.Context, repository string) (map[string]ManifestSummary, error) {
 	url := p.registry.Url("/v2/%s/tags/list", repository)
-	fmt.Printf("registry.tags url=%s repository=%s", url, repository)
+	fmt.Printf("registry.tags url=%s repository=%s\n", url, repository)
 
 	var response tagsResponse
 	if _, err := p.registry.GetJSON(ctx, url, &response); err != nil {
@@ -118,4 +120,12 @@ func (g *GCR) getCredential(ctx context.Context) (username, password string, err
 	}
 	helper := credhelper.NewGCRCredentialHelper(credStore, userCfg)
 	return helper.Get(g.domain)
+}
+
+func getIntByte(strB string) *int {
+	b, err := strconv.Atoi(strB)
+	if err != nil {
+		return nil
+	}
+	return &b
 }

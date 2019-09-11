@@ -89,12 +89,22 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, option types.A
 				tags = append(tags, *t)
 			}
 		}
+
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       tags,
+			Byte:       getIntByte(detail.ImageSizeInBytes),
 			CreatedAt:  nil,
 			UploadedAt: detail.ImagePushedAt,
 		})
 	}
 
 	return imageTags, nil
+}
+
+func getIntByte(b *int64) *int {
+	if b == nil {
+		return nil
+	}
+	i := int(*b)
+	return &i
 }

@@ -25,6 +25,7 @@ type tagsResponse struct {
 
 type ImageSummary struct {
 	Name        string `json:"name"`
+	FullSize    int    `json:"full_size"`
 	LastUpdated string `json:"last_updated"`
 }
 
@@ -48,6 +49,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, option t
 		createdAt, _ := time.Parse(time.RFC3339Nano, detail.LastUpdated)
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:      []string{detail.Name},
+			Byte:      &detail.FullSize,
 			CreatedAt: &createdAt,
 		})
 	}
