@@ -56,10 +56,11 @@ func Run(c *cli.Context) (err error) {
 	table.SetHeader([]string{"Full", "Tag", "Size", "Created At", "Uploaded At"})
 
 	var showTags types.ImageTags
-	if c.Bool("max") {
-		showTags = tags
-	} else {
-		showTags = tags[:opt.MaxCount]
+	showTags = tags
+	if !c.Bool("max") {
+		if opt.MaxCount < len(tags) {
+			showTags = tags[:opt.MaxCount]
+		}
 	}
 	for _, tag := range showTags {
 		table.Append([]string{
