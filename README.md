@@ -6,6 +6,7 @@ Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elast
 ## Quick Start
 
 ```bash
+$ brew install goodwithtech/r/dockertags
 $ dockertags [IMAGE_NAME]
 ```
 
