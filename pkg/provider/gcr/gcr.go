@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/goodwithtech/dockertags/pkg/auth"
+
 	"github.com/goodwithtech/dockertags/pkg/log"
 
 	"github.com/goodwithtech/dockertags/pkg/types"
@@ -36,20 +38,12 @@ type ManifestSummary struct {
 }
 
 func (p *GCR) Run(ctx context.Context, domain, repository string, option types.AuthOption) (imageTags types.ImageTags, err error) {
-	if option.GcpCredPath != "" {
-		p.Store = store.NewGCRCredStore(option.GcpCredPath)
-	}
-	auth := dockertypes.AuthConfig{
-		ServerAddress: domain,
-	}
-	auth.Username, auth.Password, err = p.getCredential(ctx)
+	authconfig, err := p.getAuthConfig(ctx, domain, option)
 	if err != nil {
-		log.Logger.Debug("Fail to get gcp credential")
-		//return nil, err
+		log.Logger.Debugf("Fail to get gcp credential : %s", err)
 	}
-
 	opt := registry.Opt{Timeout: option.Timeout}
-	r, err := registry.New(ctx, auth, opt)
+	r, err := registry.New(ctx, authconfig, opt)
 	if err != nil {
 		return nil, err
 	}
@@ -105,22 +99,41 @@ func (p *GCR) getTags(ctx context.Context, repository string) (map[string]Manife
 	return response.Manifest, nil
 }
 
-func (g *GCR) getCredential(ctx context.Context) (username, password string, err error) {
+func (p *GCR) getAuthConfig(ctx context.Context, domain string, opt types.AuthOption) (authconfig dockertypes.AuthConfig, err error) {
+	if opt.GcpCredPath != "" {
+		p.Store = store.NewGCRCredStore(opt.GcpCredPath)
+	}
+	authDomain := opt.AuthURL
+	if authDomain == "" {
+		authDomain = domain
+	}
+	authconfig.ServerAddress = authDomain
+	// check registry which particular to get credential
+	authconfig.Username, authconfig.Password, err = p.getCredential(ctx)
+	if err != nil {
+		return auth.GetAuthConfig(opt.UserName, opt.Password, authDomain)
+	}
+	return authconfig, nil
+}
+
+func (p *GCR) getCredential(ctx context.Context) (username, password string, err error) {
 	var credStore store.GCRCredStore
-	if g.Store == nil {
+	if p.Store == nil {
 		credStore, err = store.DefaultGCRCredStore()
 		if err != nil {
+			log.Logger.Debug("Fail to getCredential from credential store")
 			return "", "", err
 		}
 	} else {
-		credStore = g.Store
+		credStore = p.Store
 	}
 	userCfg, err := config.LoadUserConfig()
 	if err != nil {
+		log.Logger.Debug("Fail to LoadUserConfig")
 		return "", "", err
 	}
 	helper := credhelper.NewGCRCredentialHelper(credStore, userCfg)
-	return helper.Get(g.domain)
+	return helper.Get(p.domain)
 }
 
 func getIntByte(strB string) *int {
