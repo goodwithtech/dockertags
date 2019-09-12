@@ -3,6 +3,7 @@ package main
 import (
 	l "log"
 	"os"
+	"time"
 
 	"github.com/goodwithtech/dockertags/pkg"
 	"github.com/goodwithtech/dockertags/pkg/log"
@@ -39,13 +40,29 @@ OPTIONS:
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "debug, d",
-			Usage: "debug mode",
+			Usage: "Show debug logs",
+		},
+		cli.DurationFlag{
+			Name:  "timeout, t",
+			Value: time.Second * 10,
+			Usage: "e.g)5s, 1m (default 10s)",
+		},
+		cli.StringFlag{
+			Name:  "username, u",
+			Usage: "Username",
+		},
+		cli.StringFlag{
+			Name:  "password, p",
+			Usage: "Using -password via CLI is insecure. Be careful.",
+		},
+		cli.StringFlag{
+			Name:  "authurl, auth",
+			Usage: "Url when fetch authentication",
 		},
 	}
 
 	app.Action = pkg.Run
 	err := app.Run(os.Args)
-
 	if err != nil {
 		if log.Logger != nil {
 			log.Fatal(err)

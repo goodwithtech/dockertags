@@ -19,13 +19,12 @@ import (
 
 func Run(c *cli.Context) (err error) {
 	debug := c.Bool("debug")
+	// reload logger if set flag
 	if err = log.InitLogger(debug); err != nil {
 		l.Fatal(err)
 	}
-
 	cliVersion := "v" + c.App.Version
 	latestVersion, err := utils.FetchLatestVersion()
-
 	// check latest version
 	if err == nil && cliVersion != latestVersion && c.App.Version != "dev" {
 		log.Logger.Warnf("A new version %s is now available! You have %s.", latestVersion, cliVersion)
@@ -37,7 +36,10 @@ func Run(c *cli.Context) (err error) {
 		return fmt.Errorf("input any image name")
 	}
 	opt := types.AuthOption{
-		Timeout: time.Second * 10,
+		Timeout:  c.Duration("timeout"),
+		AuthURL:  c.String("authurl"),
+		UserName: c.String("username"),
+		Password: c.String("password"),
 	}
 
 	log.Logger.Debug("Start fetch tags...")

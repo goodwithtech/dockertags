@@ -2,14 +2,23 @@ package types
 
 import "time"
 
+type AuthOption struct {
+	AuthURL      string
+	UserName     string
+	Password     string
+	GcpCredPath  string
+	AwsAccessKey string
+	AwsSecretKey string
+	AwsRegion    string
+	Timeout      time.Duration
+}
+
 type ImageTag struct {
 	Tags       []string
 	Byte       *int
 	CreatedAt  *time.Time
 	UploadedAt *time.Time
 }
-
-var ISO8601fmt = "2006-01-02T15:04:05-0700"
 
 type ImageTags []ImageTag
 
