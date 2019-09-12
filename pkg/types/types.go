@@ -2,7 +2,8 @@ package types
 
 import "time"
 
-type AuthOption struct {
+type RequestOption struct {
+	MaxCount     int
 	AuthURL      string
 	UserName     string
 	Password     string

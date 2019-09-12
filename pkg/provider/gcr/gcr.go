@@ -37,7 +37,7 @@ type ManifestSummary struct {
 	UploadedMS     string   `json:"timeUploadedMs"`
 }
 
-func (p *GCR) Run(ctx context.Context, domain, repository string, option types.AuthOption) (imageTags types.ImageTags, err error) {
+func (p *GCR) Run(ctx context.Context, domain, repository string, option types.RequestOption) (imageTags types.ImageTags, err error) {
 	authconfig, err := p.getAuthConfig(ctx, domain, option)
 	if err != nil {
 		log.Logger.Debugf("Fail to get gcp credential : %s", err)
@@ -99,7 +99,7 @@ func (p *GCR) getTags(ctx context.Context, repository string) (map[string]Manife
 	return response.Manifest, nil
 }
 
-func (p *GCR) getAuthConfig(ctx context.Context, domain string, opt types.AuthOption) (authconfig dockertypes.AuthConfig, err error) {
+func (p *GCR) getAuthConfig(ctx context.Context, domain string, opt types.RequestOption) (authconfig dockertypes.AuthConfig, err error) {
 	if opt.GcpCredPath != "" {
 		p.Store = store.NewGCRCredStore(opt.GcpCredPath)
 	}

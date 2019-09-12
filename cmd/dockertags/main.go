@@ -39,13 +39,18 @@ OPTIONS:
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
-			Name:  "debug, d",
-			Usage: "Show debug logs",
+			Name:  "all",
+			Usage: "fetch all tagged image information",
+		},
+		cli.IntFlag{
+			Name:  "limit, l",
+			Value: 50,
+			Usage: "Set max fetch count",
 		},
 		cli.DurationFlag{
 			Name:  "timeout, t",
 			Value: time.Second * 10,
-			Usage: "e.g)5s, 1m (default 10s)",
+			Usage: "e.g)5s, 1m",
 		},
 		cli.StringFlag{
 			Name:  "username, u",
@@ -58,6 +63,10 @@ OPTIONS:
 		cli.StringFlag{
 			Name:  "authurl, auth",
 			Usage: "Url when fetch authentication",
+		},
+		cli.BoolFlag{
+			Name:  "debug, d",
+			Usage: "Show debug logs",
 		},
 	}
 

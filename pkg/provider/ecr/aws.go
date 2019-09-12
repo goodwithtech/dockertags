@@ -24,7 +24,7 @@ var _ time.Duration
 var _ strings.Reader
 var _ aws.Config
 
-func getSession(option types.AuthOption) (*session.Session, error) {
+func getSession(option types.RequestOption) (*session.Session, error) {
 	// create custom credential information if option is valid
 	if option.AwsSecretKey != "" && option.AwsAccessKey != "" && option.AwsRegion != "" {
 		return session.NewSessionWithOptions(
@@ -46,7 +46,7 @@ func getSession(option types.AuthOption) (*session.Session, error) {
 	})
 }
 
-func (p *ECR) Run(ctx context.Context, domain, repository string, option types.AuthOption) (types.ImageTags, error) {
+func (p *ECR) Run(ctx context.Context, domain, repository string, option types.RequestOption) (types.ImageTags, error) {
 	sess, err := getSession(option)
 	if err != nil {
 		return nil, err

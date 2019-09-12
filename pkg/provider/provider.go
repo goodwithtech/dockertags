@@ -20,10 +20,10 @@ const (
 )
 
 type Provider interface {
-	Run(ctx context.Context, domain, repository string, option types.AuthOption) (types.ImageTags, error)
+	Run(ctx context.Context, domain, repository string, option types.RequestOption) (types.ImageTags, error)
 }
 
-func Exec(imageName string, option types.AuthOption) (types.ImageTags, error) {
+func Exec(imageName string, option types.RequestOption) (types.ImageTags, error) {
 	image, err := image.ParseImage(imageName)
 	if err != nil {
 		return nil, err

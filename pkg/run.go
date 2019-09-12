@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -31,11 +30,15 @@ func Run(c *cli.Context) (err error) {
 	}
 	err = nil
 	args := c.Args()
-	image := args[0]
-	if image == "" {
-		return fmt.Errorf("input any image name")
+
+	if len(args) == 0 {
+		log.Logger.Infof(`"dockertags" requires at least 1 argument.`)
+		cli.ShowAppHelpAndExit(c, 1)
+		return
 	}
-	opt := types.AuthOption{
+	image := args[0]
+	opt := types.RequestOption{
+		MaxCount: c.Int("limit"),
 		Timeout:  c.Duration("timeout"),
 		AuthURL:  c.String("authurl"),
 		UserName: c.String("username"),
@@ -52,7 +55,13 @@ func Run(c *cli.Context) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Full", "Tag", "Size", "Created At", "Uploaded At"})
 
-	for _, tag := range tags {
+	var showTags types.ImageTags
+	if c.Bool("max") {
+		showTags = tags
+	} else {
+		showTags = tags[:opt.MaxCount]
+	}
+	for _, tag := range showTags {
 		table.Append([]string{
 			getFullPath(image, tag.Tags),
 			strings.Join(tag.Tags, ","),
@@ -61,6 +70,7 @@ func Run(c *cli.Context) (err error) {
 			ttos(tag.UploadedAt),
 		})
 	}
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.Render()
 
 	return nil
