@@ -8,8 +8,10 @@ require (
 	github.com/aws/aws-sdk-go v1.23.17
 	github.com/docker/cli v0.0.0-20190906153656-016a3232168d
 	github.com/docker/distribution v2.7.1+incompatible
-	github.com/docker/docker v1.13.1 // indirect
+	github.com/docker/docker v1.13.1
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/moul/http2curl v1.0.0 // indirect

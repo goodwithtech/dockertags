@@ -10,7 +10,7 @@ import (
 	"github.com/goodwithtech/dockertags/pkg/log"
 	"github.com/goodwithtech/dockertags/pkg/types"
 
-	dockertypes "github.com/docker/cli/cli/config/types"
+	dockertypes "github.com/docker/docker/api/types"
 
 	"github.com/goodwithtech/dockertags/pkg/registry"
 )
