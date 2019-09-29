@@ -38,6 +38,8 @@ type ImageSummary struct {
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, option types.RequestOption) (types.ImageTags, error) {
 	auth := dockertypes.AuthConfig{
 		ServerAddress: "registry.hub.docker.com",
+		Username:      option.UserName,
+		Password:      option.Password,
 	}
 	opt := registry.Opt{}
 	r, err := registry.New(ctx, auth, opt)
