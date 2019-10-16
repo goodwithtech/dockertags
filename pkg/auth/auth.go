@@ -8,8 +8,6 @@ import (
 
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/docker/api/types"
-
-	clitypes "github.com/docker/cli/cli/config/types"
 )
 
 const (
@@ -102,7 +100,7 @@ func GetAuthConfig(username, password, registry string) (types.AuthConfig, error
 // registry value if ServerAddress is empty. For example, config.Load() will
 // return AuthConfigs with empty ServerAddresses if the configuration file
 // contains only an "credsHelper" object.
-func fixAuthConfig(creds clitypes.AuthConfig, registry string) (c types.AuthConfig) {
+func fixAuthConfig(creds types.AuthConfig, registry string) (c types.AuthConfig) {
 	c.Username = creds.Username
 	c.Password = creds.Password
 	c.Auth = creds.Auth
