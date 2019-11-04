@@ -2,6 +2,7 @@ package dockerhub
 
 import (
 	"context"
+	"fmt"
 
 	"golang.org/x/sync/errgroup"
 
@@ -16,6 +17,7 @@ import (
 )
 
 const TAG_PER_PAGE = 10
+const registryURL = "https://registry.hub.docker.com/"
 
 type DockerHub struct {
 	registry *registry.Registry
@@ -41,14 +43,8 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, option t
 		Username:      option.UserName,
 		Password:      option.Password,
 	}
-	opt := registry.Opt{}
-	r, err := registry.New(ctx, auth, opt)
-	if err != nil {
-		return nil, err
-	}
-
 	// 1ページ目は普通に取得
-	tagResp, err := getTagResponse(ctx, r, repository, 1)
+	tagResp, err := getTagResponse(ctx, auth, option.Timeout, repository, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +57,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, option t
 	for page := 2; page < maxPage; page++ {
 		page := page
 		eg.Go(func() error {
-			tagResp, err := getTagResponse(ctx, r, repository, page)
+			tagResp, err := getTagResponse(ctx, auth, option.Timeout, repository, page)
 			if err != nil {
 				return err
 			}
@@ -99,11 +95,11 @@ func convertResultToTag(summaries []ImageSummary) types.ImageTags {
 }
 
 // getTagResponse returns the tags for a specific repository.
-func getTagResponse(ctx context.Context, r *registry.Registry, repository string, page int) (tagsResponse, error) {
-	url := r.Url("/v2/repositories/%s/tags/?page=%d", repository, page)
+func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout time.Duration, repository string, page int) (tagsResponse, error) {
+	url := fmt.Sprintf("%s/v2/repositories/%s/tags/?page=%d", registryURL, repository, page)
 	log.Logger.Debugf("url=%s,repository=%s", url, repository)
 	var response tagsResponse
-	if _, err := r.GetJSON(ctx, url, &response); err != nil {
+	if _, err := getJSON(ctx, url, auth, timeout, &response); err != nil {
 		return response, err
 	}
 
