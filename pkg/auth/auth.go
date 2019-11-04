@@ -7,7 +7,7 @@ import (
 	"github.com/goodwithtech/dockertags/pkg/log"
 
 	"github.com/docker/cli/cli/config"
-	"github.com/docker/cli/cli/config/types"
+	"github.com/docker/docker/api/types"
 )
 
 const (
@@ -50,31 +50,31 @@ func GetAuthConfig(username, password, registry string) (types.AuthConfig, error
 	// if they passed a specific registry, return those creds _if_ they exist
 	if registry != "" {
 		if creds, ok := authConfigs[registry]; ok {
-			fixAuthConfig(&creds, registry)
-			return creds, nil
+			c := fixAuthConfig(creds, registry)
+			return c, nil
 		}
 
 		if strings.HasPrefix(registry, "https://") {
 			registryCleaned := strings.TrimPrefix(registry, "https://")
 			if creds, ok := authConfigs[registryCleaned]; ok {
-				fixAuthConfig(&creds, registryCleaned)
-				return creds, nil
+				c := fixAuthConfig(creds, registryCleaned)
+				return c, nil
 			}
 		}
 
 		if strings.HasPrefix(registry, "http://") {
 			registryCleaned := strings.TrimPrefix(registry, "http://")
 			if creds, ok := authConfigs[registryCleaned]; ok {
-				fixAuthConfig(&creds, registryCleaned)
-				return creds, nil
+				c := fixAuthConfig(creds, registryCleaned)
+				return c, nil
 			}
 		}
 
 		if !strings.HasPrefix(registry, "https://") && !strings.HasPrefix(registry, "http://") {
 			registryCleaned := "https://" + registry
 			if creds, ok := authConfigs[registryCleaned]; ok {
-				fixAuthConfig(&creds, registryCleaned)
-				return creds, nil
+				c := fixAuthConfig(creds, registryCleaned)
+				return c, nil
 			}
 		}
 
@@ -88,17 +88,32 @@ func GetAuthConfig(username, password, registry string) (types.AuthConfig, error
 	// found in the auth config.
 	for _, creds := range authConfigs {
 		log.Logger.Debugf("No registry passed. Using registry %q\n", creds.ServerAddress)
-		return creds, nil
+		c := fixAuthConfig(creds, creds.ServerAddress)
+		return c, nil
 	}
 
 	log.Logger.Debug("Not using any authentication")
 	return types.AuthConfig{}, nil
 }
 
-func fixAuthConfig(creds *types.AuthConfig, registry string) {
+// fixAuthConfig overwrites the AuthConfig's ServerAddress field with the
+// registry value if ServerAddress is empty. For example, config.Load() will
+// return AuthConfigs with empty ServerAddresses if the configuration file
+// contains only an "credsHelper" object.
+func fixAuthConfig(creds types.AuthConfig, registry string) (c types.AuthConfig) {
+	c.Username = creds.Username
+	c.Password = creds.Password
+	c.Auth = creds.Auth
+	c.Email = creds.Email
+	c.IdentityToken = creds.IdentityToken
+	c.RegistryToken = creds.RegistryToken
+
+	c.ServerAddress = creds.ServerAddress
 	if creds.ServerAddress == "" {
-		creds.ServerAddress = registry
+		c.ServerAddress = registry
 	}
+
+	return c
 }
 
 func setDefaultRegistry(auth types.AuthConfig) types.AuthConfig {

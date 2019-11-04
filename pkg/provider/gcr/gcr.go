@@ -14,7 +14,7 @@ import (
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/config"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/credhelper"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/store"
-	dockertypes "github.com/docker/cli/cli/config/types"
+	dockertypes "github.com/docker/docker/api/types"
 	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
