@@ -66,7 +66,14 @@ func (t *DockerhubTokenTransport) retry(req *http.Request, token string) (*http.
 
 func (t *DockerhubTokenTransport) auth(ctx context.Context) (string, *http.Response, error) {
 	jsonStr := []byte(fmt.Sprintf(`{"username": "%s","password": "%s"}`, t.Username, t.Password))
-	resp, err := http.Post(authURL, "application/json", bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("POST", authURL, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	c := http.Client{
+		Transport: t.Transport,
+	}
+	resp, err := c.Do(req.WithContext(ctx))
+	//resp, err := http.Post(authURL, "application/json", )
+
 	if err != nil {
 		return "", nil, err
 	}
