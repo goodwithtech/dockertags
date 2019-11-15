@@ -1,7 +1,8 @@
 # dockertags
-Show tags information by container image name.
+Show information of container image ordered by time tag created at.
 
 Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elastic Container Registry).
+
 
 ## Quick Start
 
@@ -72,3 +73,33 @@ OPTIONS:
   --help, -h                     show help
   --version, -v                  print the version
 ```
+
+## Authentication
+
+### Docker Hub
+
+You can use `--username` and `--password` of Docker Hub.
+
+```bash
+dockertags -u goodwithtech -p xxxx goodwithtech/privateimage
+```
+
+### Amazon ECR (Elastic Container Registry)
+
+Use [AWS CLI's ENVIRONMENT variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html).
+
+```bash
+export AWS_ACCESS_KEY_ID={AWS ACCESS KEY}
+export AWS_SECRET_ACCESS_KEY={SECRET KEY}
+export AWS_DEFAULT_REGION={AWS REGION}
+```
+
+### GCR (Google Container Registry)
+
+If you'd like to use the target project's repository, you can settle via `GOOGLE_APPLICATION_CREDENTIAL`.
+
+```bash
+# must set DOCKLE_USERNAME empty char
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credential.json
+```
+
