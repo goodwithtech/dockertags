@@ -35,6 +35,7 @@ func getSession(option types.RequestOption) (*session.Session, error) {
 						credentials.Value{
 							AccessKeyID:     option.AwsAccessKey,
 							SecretAccessKey: option.AwsSecretKey,
+							SessionToken:    option.AwsSessionToken,
 						},
 					),
 				},

@@ -3,15 +3,16 @@ package types
 import "time"
 
 type RequestOption struct {
-	MaxCount     int
-	AuthURL      string
-	UserName     string
-	Password     string
-	GcpCredPath  string
-	AwsAccessKey string
-	AwsSecretKey string
-	AwsRegion    string
-	Timeout      time.Duration
+	MaxCount        int
+	AuthURL         string
+	UserName        string
+	Password        string
+	GcpCredPath     string
+	AwsAccessKey    string
+	AwsSecretKey    string
+	AwsSessionToken string
+	AwsRegion       string
+	Timeout         time.Duration
 }
 
 type ImageTag struct {
