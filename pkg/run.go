@@ -1,18 +1,15 @@
 package pkg
 
 import (
+	"fmt"
+	l "log"
 	"os"
-	"strings"
-
-	"github.com/olekukonko/tablewriter"
 
 	"github.com/goodwithtech/dockertags/internal/log"
+	"github.com/goodwithtech/dockertags/internal/report"
 	"github.com/goodwithtech/dockertags/internal/types"
 	"github.com/goodwithtech/dockertags/internal/utils"
 	"github.com/goodwithtech/dockertags/pkg/provider"
-
-	l "log"
-	"time"
 
 	"github.com/urfave/cli"
 )
@@ -52,49 +49,28 @@ func Run(c *cli.Context) (err error) {
 	if err != nil {
 		return err
 	}
-
-	log.Logger.Debug("Writing table...")
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Full", "Tag", "Size", "Created At", "Uploaded At"})
-
 	var showTags types.ImageTags
 	showTags = tags
 	if !all && opt.MaxCount < len(tags) {
 		showTags = tags[:opt.MaxCount]
 	}
 
-	for _, tag := range showTags {
-		table.Append([]string{
-			getFullPath(image, tag.Tags),
-			strings.Join(tag.Tags, ","),
-			getBytesize(tag.Byte),
-			ttos(tag.CreatedAt),
-			ttos(tag.UploadedAt),
-		})
-	}
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.Render()
+	log.Logger.Debug("Writing table...")
 
-	return nil
-}
-
-func getFullPath(image string, tags []string) string {
-	if len(tags) == 0 {
-		return "NO TAGGED"
+	o := c.String("output")
+	output := os.Stdout
+	if o != "" {
+		if output, err = os.Create(o); err != nil {
+			return fmt.Errorf("failed to create an output file: %w", err)
+		}
 	}
-	return image + ":" + tags[0]
-}
-
-func getBytesize(b *int) string {
-	if b == nil {
-		return "-"
+	var writer report.Writer
+	switch format := c.String("format"); format {
+	case "json":
+		writer = &report.JsonWriter{Output: output}
+	default:
+		writer = &report.TableWriter{Output: output}
 	}
-	return utils.ByteSize(*b)
-}
 
-func ttos(t *time.Time) string {
-	if t == nil {
-		return "NULL"
-	}
-	return (*t).Format(time.RFC3339)
+	return writer.Write(showTags)
 }

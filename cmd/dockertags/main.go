@@ -5,9 +5,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/goodwithtech/dockertags/pkg"
-	"github.com/goodwithtech/dockertags/pkg/log"
 	"github.com/urfave/cli"
+
+	"github.com/goodwithtech/dockertags/internal/log"
+	"github.com/goodwithtech/dockertags/pkg"
 )
 
 var (
@@ -39,13 +40,22 @@ OPTIONS:
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
-			Name:  "all",
+			Name:  "all, a",
 			Usage: "fetch all tagged image information",
 		},
 		cli.IntFlag{
 			Name:  "limit, l",
 			Value: 50,
-			Usage: "Set max fetch count",
+			Usage: "Set max fetch count. if exist no tag image will be short numbers",
+		},
+		cli.StringSliceFlag{
+			Name:  "contain, c",
+			Usage: "contains target string",
+		},
+		cli.StringFlag{
+			Name:  "format, f",
+			Value: "table",
+			Usage: "target format table or json, default table",
 		},
 		cli.DurationFlag{
 			Name:  "timeout, t",
@@ -74,7 +84,7 @@ OPTIONS:
 	err := app.Run(os.Args)
 	if err != nil {
 		if log.Logger != nil {
-			log.Fatal(err)
+			log.Logger.Fatal(err)
 		}
 		l.Fatal(err)
 	}

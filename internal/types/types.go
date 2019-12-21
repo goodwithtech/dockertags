@@ -16,10 +16,10 @@ type RequestOption struct {
 }
 
 type ImageTag struct {
-	Tags       []string
-	Byte       *int
-	CreatedAt  *time.Time
-	UploadedAt *time.Time
+	Tags       []string   `json:"tags"`
+	Byte       *int       `json:"byte"`
+	CreatedAt  *time.Time `json:"created_at"`
+	UploadedAt *time.Time `json:"uploaded_at"`
 }
 
 type ImageTags []ImageTag
