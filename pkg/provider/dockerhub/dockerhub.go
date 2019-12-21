@@ -54,7 +54,6 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt t
 
 	// 2ページ目以降はgoroutine
 	maxPage := tagResp.Count/types.ITEM_PER_PAGE + 1
-	fmt.Println(maxPage)
 	tagCh := make(chan types.ImageTags, maxPage-1)
 	eg := errgroup.Group{}
 	for page := 2; page < maxPage; page++ {
