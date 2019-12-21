@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/goodwithtech/dockertags/pkg/types"
+	"github.com/goodwithtech/dockertags/internal/types"
 )
 
 var (

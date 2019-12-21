@@ -8,8 +8,8 @@ import (
 
 	"time"
 
-	"github.com/goodwithtech/dockertags/pkg/log"
-	"github.com/goodwithtech/dockertags/pkg/types"
+	"github.com/goodwithtech/dockertags/internal/log"
+	"github.com/goodwithtech/dockertags/internal/types"
 
 	dockertypes "github.com/docker/docker/api/types"
 

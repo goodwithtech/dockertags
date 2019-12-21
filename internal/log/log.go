@@ -28,7 +28,6 @@ func newLogger(debug bool) (*zap.SugaredLogger, error) {
 	} else {
 		level.SetLevel(zapcore.InfoLevel)
 	}
-
 	myConfig := zap.Config{
 		Level:             level,
 		Encoding:          "console",
@@ -54,13 +53,5 @@ func newLogger(debug bool) (*zap.SugaredLogger, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to build zap config: %w", err)
 	}
-
 	return logger.Sugar(), nil
-}
-
-func Fatal(err error) {
-	if debugOption {
-		Logger.Fatalf("%+v", err)
-	}
-	Logger.Fatal(err)
 }

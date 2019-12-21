@@ -7,7 +7,7 @@ import (
 
 	"github.com/goodwithtech/dockertags/pkg/image"
 
-	"github.com/goodwithtech/dockertags/pkg/types"
+	"github.com/goodwithtech/dockertags/internal/types"
 
 	"github.com/goodwithtech/dockertags/pkg/provider/dockerhub"
 	"github.com/goodwithtech/dockertags/pkg/provider/ecr"
@@ -36,7 +36,7 @@ func Exec(imageName string, option types.RequestOption) (types.ImageTags, error)
 	if err != nil {
 		return nil, err
 	}
-	sort.Sort(types.ImageTags(imageTags))
+	sort.Sort(imageTags)
 	return imageTags, nil
 }
 

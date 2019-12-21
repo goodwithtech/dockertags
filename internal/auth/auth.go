@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/goodwithtech/dockertags/pkg/log"
+	"github.com/goodwithtech/dockertags/internal/log"
 
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/docker/api/types"

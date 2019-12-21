@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/goodwithtech/dockertags/pkg/log"
+	"github.com/goodwithtech/dockertags/internal/log"
 
 	"github.com/parnurzeal/gorequest"
 )

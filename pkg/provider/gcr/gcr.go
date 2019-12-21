@@ -5,16 +5,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/goodwithtech/dockertags/pkg/auth"
+	"github.com/goodwithtech/dockertags/internal/auth"
 
-	"github.com/goodwithtech/dockertags/pkg/log"
+	"github.com/goodwithtech/dockertags/internal/log"
 
-	"github.com/goodwithtech/dockertags/pkg/types"
+	"github.com/goodwithtech/dockertags/internal/types"
 
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/config"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/credhelper"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/store"
 	dockertypes "github.com/docker/docker/api/types"
+
 	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
@@ -38,6 +39,7 @@ type ManifestSummary struct {
 }
 
 func (p *GCR) Run(ctx context.Context, domain, repository string, option types.RequestOption) (imageTags types.ImageTags, err error) {
+	p.domain = domain
 	authconfig, err := p.getAuthConfig(ctx, domain, option)
 	if err != nil {
 		log.Logger.Debugf("Fail to get gcp credential : %s", err)
@@ -61,12 +63,10 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, option types.R
 		if err != nil {
 			return nil, err
 		}
-
 		uploadedAt, err := stringMStoTime(detail.UploadedMS)
 		if err != nil {
 			return nil, err
 		}
-
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       detail.Tag,
 			Byte:       getIntByte(detail.ImageSizeBytes),
@@ -95,7 +95,6 @@ func (p *GCR) getTags(ctx context.Context, repository string) (map[string]Manife
 	if _, err := p.registry.GetJSON(ctx, url, &response); err != nil {
 		return nil, err
 	}
-
 	return response.Manifest, nil
 }
 

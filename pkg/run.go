@@ -4,11 +4,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/goodwithtech/dockertags/pkg/log"
-	"github.com/goodwithtech/dockertags/pkg/provider"
-	"github.com/goodwithtech/dockertags/pkg/types"
-	"github.com/goodwithtech/dockertags/pkg/utils"
 	"github.com/olekukonko/tablewriter"
+
+	"github.com/goodwithtech/dockertags/internal/log"
+	"github.com/goodwithtech/dockertags/internal/types"
+	"github.com/goodwithtech/dockertags/internal/utils"
+	"github.com/goodwithtech/dockertags/pkg/provider"
 
 	l "log"
 	"time"
@@ -18,6 +19,7 @@ import (
 
 func Run(c *cli.Context) (err error) {
 	debug := c.Bool("debug")
+	all := c.Bool("all")
 	// reload logger if set flag
 	if err = log.InitLogger(debug); err != nil {
 		l.Fatal(err)
@@ -57,11 +59,10 @@ func Run(c *cli.Context) (err error) {
 
 	var showTags types.ImageTags
 	showTags = tags
-	if !c.Bool("max") {
-		if opt.MaxCount < len(tags) {
-			showTags = tags[:opt.MaxCount]
-		}
+	if !all && opt.MaxCount < len(tags) {
+		showTags = tags[:opt.MaxCount]
 	}
+
 	for _, tag := range showTags {
 		table.Append([]string{
 			getFullPath(image, tag.Tags),
