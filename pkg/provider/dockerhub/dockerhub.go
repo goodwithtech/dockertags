@@ -10,17 +10,18 @@ import (
 
 	"github.com/goodwithtech/dockertags/internal/log"
 	"github.com/goodwithtech/dockertags/internal/types"
+	"github.com/goodwithtech/dockertags/internal/utils"
 
 	dockertypes "github.com/docker/docker/api/types"
 
 	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
-const TAG_PER_PAGE = 10
 const registryURL = "https://registry.hub.docker.com/"
 
 type DockerHub struct {
-	registry *registry.Registry
+	registry  *registry.Registry
+	filterOpt types.FilterOption
 }
 
 type tagsResponse struct {
@@ -37,31 +38,33 @@ type ImageSummary struct {
 }
 
 // curl 'https://registry.hub.docker.com/v2/repositories/library/debian/tags/'
-func (p *DockerHub) Run(ctx context.Context, domain, repository string, option types.RequestOption) (types.ImageTags, error) {
+func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (types.ImageTags, error) {
+	p.filterOpt = filterOpt
 	auth := dockertypes.AuthConfig{
 		ServerAddress: "registry.hub.docker.com",
-		Username:      option.UserName,
-		Password:      option.Password,
+		Username:      reqOpt.UserName,
+		Password:      reqOpt.Password,
 	}
 	// 1ページ目は普通に取得
-	tagResp, err := getTagResponse(ctx, auth, option.Timeout, repository, 1)
+	tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, 1)
 	if err != nil {
 		return nil, err
 	}
-	imageTags := convertResultToTag(tagResp.Results)
+	imageTags := p.convertResultToTag(tagResp.Results)
 
 	// 2ページ目以降はgoroutine
-	maxPage := tagResp.Count/TAG_PER_PAGE + 1
+	maxPage := tagResp.Count/types.ITEM_PER_PAGE + 1
+	fmt.Println(maxPage)
 	tagCh := make(chan types.ImageTags, maxPage-1)
 	eg := errgroup.Group{}
 	for page := 2; page < maxPage; page++ {
 		page := page
 		eg.Go(func() error {
-			tagResp, err := getTagResponse(ctx, auth, option.Timeout, repository, page)
+			tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, page)
 			if err != nil {
 				return err
 			}
-			tagCh <- convertResultToTag(tagResp.Results)
+			tagCh <- p.convertResultToTag(tagResp.Results)
 			return nil
 		})
 	}
@@ -78,15 +81,20 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, option t
 	return imageTags, nil
 }
 
-func convertResultToTag(summaries []ImageSummary) types.ImageTags {
+func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
 	tags := []types.ImageTag{}
 	for _, detail := range summaries {
 		if detail.Name == "" {
 			continue
 		}
 		createdAt, _ := time.Parse(time.RFC3339Nano, detail.LastUpdated)
+		tagNames := []string{detail.Name}
+		if !utils.MatchConditionTags(p.filterOpt, tagNames) {
+			continue
+		}
+
 		tags = append(tags, types.ImageTag{
-			Tags:      []string{detail.Name},
+			Tags:      tagNames,
 			Byte:      &detail.FullSize,
 			CreatedAt: &createdAt,
 		})

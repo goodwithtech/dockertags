@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/goodwithtech/dockertags/internal/auth"
+	"github.com/goodwithtech/dockertags/internal/utils"
 
 	"github.com/goodwithtech/dockertags/internal/log"
 
@@ -38,13 +39,13 @@ type ManifestSummary struct {
 	UploadedMS     string   `json:"timeUploadedMs"`
 }
 
-func (p *GCR) Run(ctx context.Context, domain, repository string, option types.RequestOption) (imageTags types.ImageTags, err error) {
+func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (imageTags types.ImageTags, err error) {
 	p.domain = domain
-	authconfig, err := p.getAuthConfig(ctx, domain, option)
+	authconfig, err := p.getAuthConfig(ctx, domain, reqOpt)
 	if err != nil {
 		log.Logger.Debugf("Fail to get gcp credential : %s", err)
 	}
-	opt := registry.Opt{Timeout: option.Timeout}
+	opt := registry.Opt{Timeout: reqOpt.Timeout}
 	r, err := registry.New(ctx, authconfig, opt)
 	if err != nil {
 		return nil, err
@@ -57,6 +58,9 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, option types.R
 
 	for _, detail := range tags {
 		if len(detail.Tag) == 0 {
+			continue
+		}
+		if !utils.MatchConditionTags(filterOpt, detail.Tag) {
 			continue
 		}
 		createdAt, err := stringMStoTime(detail.CreatedMS)

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/goodwithtech/dockertags/internal/log"
+	"github.com/goodwithtech/dockertags/internal/utils"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 
@@ -47,8 +48,8 @@ func getSession(option types.RequestOption) (*session.Session, error) {
 	})
 }
 
-func (p *ECR) Run(ctx context.Context, domain, repository string, option types.RequestOption) (types.ImageTags, error) {
-	sess, err := getSession(option)
+func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (types.ImageTags, error) {
+	sess, err := getSession(reqOpt)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +89,9 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, option types.R
 			if t != nil {
 				tags = append(tags, *t)
 			}
+		}
+		if !utils.MatchConditionTags(filterOpt, tags) {
+			continue
 		}
 
 		imageTags = append(imageTags, types.ImageTag{

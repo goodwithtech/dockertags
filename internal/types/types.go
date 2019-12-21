@@ -2,6 +2,8 @@ package types
 
 import "time"
 
+const ITEM_PER_PAGE = 10
+
 type RequestOption struct {
 	MaxCount        int
 	AuthURL         string
@@ -13,6 +15,10 @@ type RequestOption struct {
 	AwsSessionToken string
 	AwsRegion       string
 	Timeout         time.Duration
+}
+
+type FilterOption struct {
+	Contain string
 }
 
 type ImageTag struct {

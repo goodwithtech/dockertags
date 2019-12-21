@@ -39,16 +39,12 @@ OPTIONS:
 	app.Usage = "Fetch docker tags informations"
 
 	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "all, a",
-			Usage: "fetch all tagged image information",
-		},
 		cli.IntFlag{
 			Name:  "limit, l",
-			Value: 50,
-			Usage: "Set max fetch count. if exist no tag image will be short numbers",
+			Value: 0,
+			Usage: "set max tags count. if exist no tag image will be short numbers. limit=0 means fetch all tags",
 		},
-		cli.StringSliceFlag{
+		cli.StringFlag{
 			Name:  "contain, c",
 			Usage: "contains target string",
 		},
@@ -56,6 +52,14 @@ OPTIONS:
 			Name:  "format, f",
 			Value: "table",
 			Usage: "target format table or json, default table",
+		},
+		cli.StringFlag{
+			Name:  "output, o",
+			Usage: "output file name, default output to stdout",
+		},
+		cli.StringFlag{
+			Name:  "authurl, auth",
+			Usage: "Url when fetch authentication",
 		},
 		cli.DurationFlag{
 			Name:  "timeout, t",
@@ -69,10 +73,6 @@ OPTIONS:
 		cli.StringFlag{
 			Name:  "password, p",
 			Usage: "Using -password via CLI is insecure. Be careful.",
-		},
-		cli.StringFlag{
-			Name:  "authurl, auth",
-			Usage: "Url when fetch authentication",
 		},
 		cli.BoolFlag{
 			Name:  "debug, d",

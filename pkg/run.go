@@ -16,7 +16,8 @@ import (
 
 func Run(c *cli.Context) (err error) {
 	debug := c.Bool("debug")
-	all := c.Bool("all")
+	// limit = 0 means fetch all tags
+	all := c.Int("limit") == 0
 	// reload logger if set flag
 	if err = log.InitLogger(debug); err != nil {
 		l.Fatal(err)
@@ -30,13 +31,14 @@ func Run(c *cli.Context) (err error) {
 	err = nil
 	args := c.Args()
 
-	if len(args) == 0 {
-		log.Logger.Infof(`"dockertags" requires at least 1 argument.`)
+	if len(args) != 1 {
+		log.Logger.Infof(`"dockertags" requires one argument.`)
 		cli.ShowAppHelpAndExit(c, 1)
 		return
 	}
+
 	image := args[0]
-	opt := types.RequestOption{
+	reqOpt := types.RequestOption{
 		MaxCount: c.Int("limit"),
 		Timeout:  c.Duration("timeout"),
 		AuthURL:  c.String("authurl"),
@@ -44,18 +46,23 @@ func Run(c *cli.Context) (err error) {
 		Password: c.String("password"),
 	}
 
-	log.Logger.Debug("Start fetch tags...")
-	tags, err := provider.Exec(image, opt)
+	filterOpt := types.FilterOption{
+		Contain: c.String("contain"),
+	}
+
+	log.Logger.Debug("Start fetch tags")
+	tags, err := provider.Exec(image, reqOpt, filterOpt)
 	if err != nil {
 		return err
 	}
+
 	var showTags types.ImageTags
 	showTags = tags
-	if !all && opt.MaxCount < len(tags) {
-		showTags = tags[:opt.MaxCount]
+	if !all && reqOpt.MaxCount < len(tags) {
+		showTags = tags[:reqOpt.MaxCount]
 	}
 
-	log.Logger.Debug("Writing table...")
+	log.Logger.Debug("Start reporting")
 
 	o := c.String("output")
 	output := os.Stdout
