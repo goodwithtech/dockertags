@@ -13,15 +13,12 @@ import (
 	"github.com/goodwithtech/dockertags/internal/utils"
 
 	dockertypes "github.com/docker/docker/api/types"
-
-	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
 const registryURL = "https://registry.hub.docker.com/"
 
 type DockerHub struct {
-	registry  *registry.Registry
-	filterOpt types.FilterOption
+	filterOpt *types.FilterOption
 }
 
 type tagsResponse struct {
@@ -37,33 +34,35 @@ type ImageSummary struct {
 	LastUpdated string `json:"last_updated"`
 }
 
-// curl 'https://registry.hub.docker.com/v2/repositories/library/debian/tags/'
-func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (types.ImageTags, error) {
+func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
 	auth := dockertypes.AuthConfig{
 		ServerAddress: "registry.hub.docker.com",
 		Username:      reqOpt.UserName,
 		Password:      reqOpt.Password,
 	}
-	// 1ページ目は普通に取得
+	// fetch page 1 for check max item count.
 	tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, 1)
 	if err != nil {
 		return nil, err
 	}
 	imageTags := p.convertResultToTag(tagResp.Results)
+	if reqOpt.MaxCount > 0 && len(imageTags) > reqOpt.MaxCount {
+		return imageTags, nil
+	}
 
-	// 2ページ目以降はgoroutine
-	maxPage := tagResp.Count/types.ITEM_PER_PAGE + 1
-	tagCh := make(chan types.ImageTags, maxPage-1)
+	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
+	// create ch (page - 1), already fetched first page,
+	tagsPerPage := make(chan types.ImageTags, lastPage-1)
 	eg := errgroup.Group{}
-	for page := 2; page < maxPage; page++ {
+	for page := 2; page <= lastPage; page++ {
 		page := page
 		eg.Go(func() error {
 			tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, page)
 			if err != nil {
 				return err
 			}
-			tagCh <- p.convertResultToTag(tagResp.Results)
+			tagsPerPage <- p.convertResultToTag(tagResp.Results)
 			return nil
 		})
 	}
@@ -71,9 +70,9 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt t
 		return nil, err
 	}
 
-	for page := 2; page < maxPage; page++ {
+	for page := 2; page <= lastPage; page++ {
 		select {
-		case tags := <-tagCh:
+		case tags := <-tagsPerPage:
 			imageTags = append(imageTags, tags...)
 		}
 	}
@@ -91,7 +90,6 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 		if !utils.MatchConditionTags(p.filterOpt, tagNames) {
 			continue
 		}
-
 		tags = append(tags, types.ImageTag{
 			Tags:      tagNames,
 			Byte:      &detail.FullSize,
@@ -102,6 +100,7 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 }
 
 // getTagResponse returns the tags for a specific repository.
+// curl 'https://registry.hub.docker.com/v2/repositories/library/debian/tags/'
 func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout time.Duration, repository string, page int) (tagsResponse, error) {
 	url := fmt.Sprintf("%s/v2/repositories/%s/tags/?page=%d", registryURL, repository, page)
 	log.Logger.Debugf("url=%s,repository=%s", url, repository)
@@ -111,4 +110,16 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 	}
 
 	return response, nil
+}
+
+func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
+	maxPage := totalCnt/types.ITEM_PER_PAGE + 1
+	if needCnt == 0 || option.Contain != "" {
+		return maxPage
+	}
+	needPage := needCnt/types.ITEM_PER_PAGE + 1
+	if needPage >= maxPage {
+		return maxPage
+	}
+	return needPage
 }

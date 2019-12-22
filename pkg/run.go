@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"errors"
 	"fmt"
 	l "log"
 	"os"
@@ -16,8 +17,6 @@ import (
 
 func Run(c *cli.Context) (err error) {
 	debug := c.Bool("debug")
-	// limit = 0 means fetch all tags
-	all := c.Int("limit") == 0
 	// reload logger if set flag
 	if err = log.InitLogger(debug); err != nil {
 		l.Fatal(err)
@@ -29,39 +28,21 @@ func Run(c *cli.Context) (err error) {
 		log.Logger.Warnf("A new version %s is now available! You have %s.", latestVersion, cliVersion)
 	}
 	err = nil
-	args := c.Args()
 
-	if len(args) != 1 {
-		log.Logger.Infof(`"dockertags" requires one argument.`)
-		cli.ShowAppHelpAndExit(c, 1)
-		return
+	var imageName string
+	if imageName, err = fetchImageName(c.Args()); err != nil {
+		log.Logger.Fatalf("A new version %s is now available! You have %s.", latestVersion, cliVersion)
 	}
 
-	image := args[0]
-	reqOpt := types.RequestOption{
-		MaxCount: c.Int("limit"),
-		Timeout:  c.Duration("timeout"),
-		AuthURL:  c.String("authurl"),
-		UserName: c.String("username"),
-		Password: c.String("password"),
+	reqOpt, filterOpt, err := genOpts(c)
+	if err != nil {
+		log.Logger.Fatalf("invalid option: %s.", err)
 	}
 
-	filterOpt := types.FilterOption{
-		Contain: c.String("contain"),
-	}
-
-	log.Logger.Debug("Start fetch tags")
-	tags, err := provider.Exec(image, reqOpt, filterOpt)
+	tags, err := provider.Exec(imageName, reqOpt, filterOpt)
 	if err != nil {
 		return err
 	}
-
-	var showTags types.ImageTags
-	showTags = tags
-	if !all && reqOpt.MaxCount < len(tags) {
-		showTags = tags[:reqOpt.MaxCount]
-	}
-
 	log.Logger.Debug("Start reporting")
 
 	o := c.String("output")
@@ -79,5 +60,44 @@ func Run(c *cli.Context) (err error) {
 		writer = &report.TableWriter{Output: output}
 	}
 
+	var showTags types.ImageTags
+	if reqOpt.MaxCount > 0 && reqOpt.MaxCount < len(tags) {
+		showTags = tags[:reqOpt.MaxCount]
+	} else {
+		showTags = tags
+	}
 	return writer.Write(showTags)
+}
+
+func genRequestOpt(c *cli.Context) types.RequestOption {
+	return types.RequestOption{
+		MaxCount: c.Int("limit"),
+		Timeout:  c.Duration("timeout"),
+		AuthURL:  c.String("authurl"),
+		UserName: c.String("username"),
+		Password: c.String("password"),
+	}
+}
+
+func genFilterOpt(c *cli.Context) types.FilterOption {
+	return types.FilterOption{
+		Contain: c.String("contain"),
+	}
+}
+
+func genOpts(c *cli.Context) (*types.RequestOption, *types.FilterOption, error) {
+	reqOpt := genRequestOpt(c)
+	filterOpt := genFilterOpt(c)
+	// fetch all tags when use -contain
+	// if reqOpt.MaxCount != 0 && filterOpt.Contain != "" {
+	// 	return nil, nil, errors.New("you can't set 'contain string' and 'latest' both ways")
+	// }
+	return &reqOpt, &filterOpt, nil
+}
+
+func fetchImageName(args []string) (string, error) {
+	if len(args) != 1 {
+		return "", errors.New(`"dockertags" requires one argument.`)
+	}
+	return args[0], nil
 }

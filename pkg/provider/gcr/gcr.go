@@ -23,6 +23,7 @@ import (
 type GCR struct {
 	registry *registry.Registry
 	domain   string
+	reqOpt   *types.RequestOption
 	Store    store.GCRCredStore
 }
 
@@ -39,9 +40,10 @@ type ManifestSummary struct {
 	UploadedMS     string   `json:"timeUploadedMs"`
 }
 
-func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (imageTags types.ImageTags, err error) {
+func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (imageTags types.ImageTags, err error) {
 	p.domain = domain
-	authconfig, err := p.getAuthConfig(ctx, domain, reqOpt)
+	p.reqOpt = reqOpt
+	authconfig, err := p.getAuthConfig(ctx, domain)
 	if err != nil {
 		log.Logger.Debugf("Fail to get gcp credential : %s", err)
 	}
@@ -102,11 +104,11 @@ func (p *GCR) getTags(ctx context.Context, repository string) (map[string]Manife
 	return response.Manifest, nil
 }
 
-func (p *GCR) getAuthConfig(ctx context.Context, domain string, opt types.RequestOption) (authconfig dockertypes.AuthConfig, err error) {
-	if opt.GcpCredPath != "" {
-		p.Store = store.NewGCRCredStore(opt.GcpCredPath)
+func (p *GCR) getAuthConfig(ctx context.Context, domain string) (authconfig dockertypes.AuthConfig, err error) {
+	if p.reqOpt.GcpCredPath != "" {
+		p.Store = store.NewGCRCredStore(p.reqOpt.GcpCredPath)
 	}
-	authDomain := opt.AuthURL
+	authDomain := p.reqOpt.AuthURL
 	if authDomain == "" {
 		authDomain = domain
 	}
@@ -114,7 +116,7 @@ func (p *GCR) getAuthConfig(ctx context.Context, domain string, opt types.Reques
 	// check registry which particular to get credential
 	authconfig.Username, authconfig.Password, err = p.getCredential(ctx)
 	if err != nil {
-		return auth.GetAuthConfig(opt.UserName, opt.Password, authDomain)
+		return auth.GetAuthConfig(p.reqOpt.UserName, p.reqOpt.Password, authDomain)
 	}
 	return authconfig, nil
 }

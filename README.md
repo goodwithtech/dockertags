@@ -11,68 +11,56 @@ $ brew install goodwithtech/r/dockertags
 $ dockertags [IMAGE_NAME]
 ```
 
+## When to Use
+
+Make easy to fetch target tag in scheduled operation.
+ 
+```.env
+$ dockertags -limit 1 -format json <imagename> | jq -r .[0].tags[0]
+...output tag...
+
+# Scan a latest container image with https://github.com/aquasecurity/trivy
+$ export IMAGENAME=<imagename>
+$ trivy $IMAGENAME:$(dockertags -limit 1 -format json $IMAGENAME | jq -r .[0].tags[0])
+```
+
 ## Examples
 
 ```bash
 $ dockertags goodwithtech/dockle
-+-----------------------------+---------+-------+----------------------+-------------+
-|            FULL             |   TAG   | SIZE  |      CREATED AT      | UPLOADED AT |
-+-----------------------------+---------+-------+----------------------+-------------+
-| goodwithtech/dockle:v0.1.16 | v0.1.16 | 20.5M | 2019-08-25T06:35:40Z | NULL        |
-| goodwithtech/dockle:latest  | latest  | 20.5M | 2019-08-25T06:15:39Z | NULL        |
-| goodwithtech/dockle:v0.1.15 | v0.1.15 | 20.5M | 2019-08-16T00:01:43Z | NULL        |
-| goodwithtech/dockle:v0.1.14 | v0.1.14 | 20.5M | 2019-07-11T15:11:08Z | NULL        |
-| goodwithtech/dockle:v0.1.13 | v0.1.13 | 20.5M | 2019-06-19T13:32:17Z | NULL        |
-| goodwithtech/dockle:v0.1.12 | v0.1.12 | 20.5M | 2019-06-16T18:49:37Z | NULL        |
-| goodwithtech/dockle:v0.1.11 | v0.1.11 | 20.5M | 2019-06-16T17:58:23Z | NULL        |
-| goodwithtech/dockle:v0.1.10 | v0.1.10 | 20.5M | 2019-06-15T14:38:20Z | NULL        |
-| goodwithtech/dockle:v0.1.9  | v0.1.9  | 20.5M | 2019-06-15T14:11:43Z | NULL        |
-| goodwithtech/dockle:v0.1.8  | v0.1.8  | 20.5M | 2019-06-14T19:20:04Z | NULL        |
-+-----------------------------+---------+-------+----------------------+-------------+
++---------+-------+----------------------+-------------+
+|   TAG   | SIZE  |      CREATED AT      | UPLOADED AT |
++---------+-------+----------------------+-------------+
+| latest  | 21.1M | 2019-12-16T14:05:18Z | NULL        |
+| v0.2.4  | 21.1M | 2019-12-05T05:18:04Z | NULL        |
+| v0.2.3  | 21.1M | 2019-11-17T15:03:10Z | NULL        |
+| v0.2.2  | 21.1M | 2019-11-17T14:45:53Z | NULL        |
+...... 
+| v0.0.18 | 20.4M | 2019-06-10T18:31:45Z | NULL        |
++---------+-------+----------------------+-------------+
 
-$ dockertags --limit 20 debian
-+-------------------------------+------------------------+-------+----------------------+-------------+
-|             FULL              |          TAG           | SIZE  |      CREATED AT      | UPLOADED AT |
-+-------------------------------+------------------------+-------+----------------------+-------------+
-| debian:rc-buggy               | rc-buggy               | 43.3M | 2019-09-12T01:07:58Z | NULL        |
-| debian:experimental-20190910  | experimental-20190910  | 43.3M | 2019-09-12T01:07:36Z | NULL        |
-| debian:experimental           | experimental           | 43.3M | 2019-09-12T01:07:32Z | NULL        |
-| debian:bullseye-20190910-slim | bullseye-20190910-slim | 43.3M | 2019-09-12T01:07:12Z | NULL        |
-| debian:bullseye-20190910      | bullseye-20190910      | 43.3M | 2019-09-12T01:07:07Z | NULL        |
-| debian:bullseye               | bullseye               | 43.3M | 2019-09-12T01:07:03Z | NULL        |
-| debian:9.11-slim              | 9.11-slim              | 43.3M | 2019-09-12T01:06:52Z | NULL        |
-| debian:9.11                   | 9.11                   | 43.3M | 2019-09-12T01:06:48Z | NULL        |
-| debian:9-slim                 | 9-slim                 | 43.3M | 2019-09-12T01:06:44Z | NULL        |
-| debian:9                      | 9                      | 43.3M | 2019-09-12T01:06:39Z | NULL        |
-| debian:stable-20190910-slim   | stable-20190910-slim   | 43.3M | 2019-09-11T23:56:41Z | NULL        |
-| debian:stable-20190910        | stable-20190910        | 43.3M | 2019-09-11T23:56:09Z | NULL        |
-| debian:stable                 | stable                 | 43.3M | 2019-09-11T23:56:02Z | NULL        |
-| debian:sid-slim               | sid-slim               | 43.3M | 2019-09-11T23:55:29Z | NULL        |
-| debian:sid-20190910-slim      | sid-20190910-slim      | 43.3M | 2019-09-11T23:55:24Z | NULL        |
-| debian:sid-20190910           | sid-20190910           | 43.3M | 2019-09-11T23:54:50Z | NULL        |
-| debian:sid                    | sid                    | 43.3M | 2019-09-11T23:54:45Z | NULL        |
-| debian:rc-buggy-20190910      | rc-buggy-20190910      | 43.3M | 2019-09-11T23:54:20Z | NULL        |
-| debian:oldstable-slim         | oldstable-slim         | 43.3M | 2019-09-11T23:53:32Z | NULL        |
-| debian:oldstable-backports    | oldstable-backports    | 43.3M | 2019-09-11T23:53:28Z | NULL        |
-+-------------------------------+------------------------+-------+----------------------+-------------+
+# You can set limit, filter and format
+$ dockertags -limit 2 -contain v0.2 -format json goodwithtech/dockle
+[
+  {
+    "tags": [
+      "v0.2.4"
+    ],
+    "byte": 22154435,
+    "created_at": "2019-12-05T05:18:04.174078Z",
+    "uploaded_at": null
+  },
+  {
+    "tags": [
+      "v0.2.3"
+    ],
+    "byte": 22154435,
+    "created_at": "2019-11-17T15:03:10.914092Z",
+    "uploaded_at": null
+  }
+]
 ```
 
-## Options
-
-```
-USAGE:
-  dockertags [options] image_name
-OPTIONS:
-  --all                          fetch all tagged image information
-  --limit value, -l value        Set max fetch count (default: 50)
-  --timeout value, -t value      e.g)5s, 1m (default: 10s)
-  --username value, -u value     Username
-  --password value, -p value     Using -password via CLI is insecure. Be careful.
-  --authurl value, --auth value  Url when fetch authentication
-  --debug, -d                    Show debug logs
-  --help, -h                     show help
-  --version, -v                  print the version
-```
 
 ## Authentication
 
@@ -89,9 +77,8 @@ dockertags -u goodwithtech -p xxxx goodwithtech/privateimage
 Use [AWS CLI's ENVIRONMENT variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html).
 
 ```bash
-export AWS_ACCESS_KEY_ID={AWS ACCESS KEY}
-export AWS_SECRET_ACCESS_KEY={SECRET KEY}
-export AWS_DEFAULT_REGION={AWS REGION}
+AWS_PROFILE={PROFILE_NAME}
+AWS_DEFAULT_REGION={REGION}
 ```
 
 ### GCR (Google Container Registry)
@@ -99,7 +86,6 @@ export AWS_DEFAULT_REGION={AWS REGION}
 If you'd like to use the target project's repository, you can settle via `GOOGLE_APPLICATION_CREDENTIAL`.
 
 ```bash
-# must set DOCKLE_USERNAME empty char
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credential.json
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/credential.json
 ```
 

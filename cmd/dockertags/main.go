@@ -36,12 +36,11 @@ OPTIONS:
 	app.Version = version
 	app.ArgsUsage = "image_name"
 
-	app.Usage = "Fetch docker tags informations"
+	app.Usage = "fetch docker image tags"
 
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
 			Name:  "limit, l",
-			Value: 0,
 			Usage: "set max tags count. if exist no tag image will be short numbers. limit=0 means fetch all tags",
 		},
 		cli.StringFlag{

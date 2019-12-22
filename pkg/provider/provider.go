@@ -22,10 +22,10 @@ const (
 )
 
 type Provider interface {
-	Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (types.ImageTags, error)
+	Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error)
 }
 
-func Exec(imageName string, reqOpt types.RequestOption, filterOpt types.FilterOption) (types.ImageTags, error) {
+func Exec(imageName string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	image, err := image.ParseImage(imageName)
 	if err != nil {
 		return nil, err

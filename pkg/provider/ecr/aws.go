@@ -25,30 +25,7 @@ var _ time.Duration
 var _ strings.Reader
 var _ aws.Config
 
-func getSession(option types.RequestOption) (*session.Session, error) {
-	// create custom credential information if option is valid
-	if option.AwsSecretKey != "" && option.AwsAccessKey != "" && option.AwsRegion != "" {
-		return session.NewSessionWithOptions(
-			session.Options{
-				Config: aws.Config{
-					Region: aws.String(option.AwsRegion),
-					Credentials: credentials.NewStaticCredentialsFromCreds(
-						credentials.Value{
-							AccessKeyID:     option.AwsAccessKey,
-							SecretAccessKey: option.AwsSecretKey,
-							SessionToken:    option.AwsSessionToken,
-						},
-					),
-				},
-			})
-	}
-	// use shared configuration normally
-	return session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	})
-}
-
-func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt types.RequestOption, filterOpt types.FilterOption) (types.ImageTags, error) {
+func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	sess, err := getSession(reqOpt)
 	if err != nil {
 		return nil, err
@@ -58,6 +35,11 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt types.R
 		RepositoryName: aws.String(repository),
 		// Only show tagged image
 		Filter: &service.DescribeImagesFilter{TagStatus: aws.String("TAGGED")},
+	}
+	if reqOpt.MaxCount > 0 {
+		//var maxResults *int64
+		maxResults := int64(reqOpt.MaxCount)
+		input.MaxResults = &maxResults
 	}
 
 	result, err := svc.DescribeImages(input)
@@ -103,6 +85,29 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt types.R
 	}
 
 	return imageTags, nil
+}
+
+func getSession(option *types.RequestOption) (*session.Session, error) {
+	// create custom credential information if option is valid
+	if option.AwsSecretKey != "" && option.AwsAccessKey != "" && option.AwsRegion != "" {
+		return session.NewSessionWithOptions(
+			session.Options{
+				Config: aws.Config{
+					Region: aws.String(option.AwsRegion),
+					Credentials: credentials.NewStaticCredentialsFromCreds(
+						credentials.Value{
+							AccessKeyID:     option.AwsAccessKey,
+							SecretAccessKey: option.AwsSecretKey,
+							SessionToken:    option.AwsSessionToken,
+						},
+					),
+				},
+			})
+	}
+	// use shared configuration normally
+	return session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	})
 }
 
 func getIntByte(b *int64) *int {
