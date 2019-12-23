@@ -8,13 +8,12 @@ jobs:
       IMAGE: goodwithtech/dockle
     steps:
       - name: Fetch last tag
-        uses: docker://docker.io/goodwithtech/dockertags:latest
-        with:
-          args: ${{ IMAGE }}
+        id: versions
+        run: |
+          echo ::set-output name=trivy::$(docker run --rm goodwithtech/dockertags -contain v0.2 -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
+          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain v0.2 -limit 1 -format json "$IMAGE" | jq -r .[0].tags[0])
       - name: Scan image for vulnerabilities
-        uses: docker://docker.io/aquasec/trivy:0.3.1
-        with:
-          args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:latest
+        run: docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:${{ steps.versions.output.target }}
       - name: Slack notification
         if: failure()
         env:
