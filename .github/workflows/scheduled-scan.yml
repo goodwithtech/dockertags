@@ -14,7 +14,7 @@ jobs:
           echo $IMAGE
           echo $CONTAIN
           echo ::set-output name=trivy::$(docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
-          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain "$CONTAIN" -limit 1 -format json "$IMAGE" | jq -r .[0].tags[0])
+          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain $CONTAIN -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
       - name: Scan image for vulnerabilities
         run: docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:${{ steps.versions.output.target }}
       - name: Slack Notification
@@ -25,4 +25,4 @@ jobs:
           SLACK_MESSAGE: 'scan failed'
           SLACK_TITLE: failed
           SLACK_USERNAME: scanresults
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}        
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
