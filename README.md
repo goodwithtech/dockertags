@@ -1,7 +1,9 @@
 # dockertags
 Show information of container image ordered by time tag created at.
-
 Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elastic Container Registry).
+
+<img src="assets/usage.gif" width="700">
+
 
 
 ## Quick Start
@@ -9,8 +11,11 @@ Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elast
 ```bash
 $ brew install goodwithtech/r/dockertags
 $ dockertags [IMAGE_NAME]
-```
 
+or 
+
+$ docker run --rm goodwithtech/dockertags [IMAGENAME]
+```
 ## When to Use
 
 Make easy to fetch target tag in scheduled operation.
@@ -61,6 +66,7 @@ $ dockertags -limit 2 -contain v0.2 -format json goodwithtech/dockle
 ]
 ```
 
+## GitHub Actions
 
 ## Authentication
 

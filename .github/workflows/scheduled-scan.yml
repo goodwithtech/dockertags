@@ -1,0 +1,21 @@
+name: Scan with trivy
+on:
+  schedule:
+    - cron:  '* * * * *'
+jobs:
+  scan:
+    name: Scan via trivy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan image for vulnerabilities
+        uses: docker://docker.io/aquasec/trivy:v0.3.1
+        with:
+          args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress goodwithtech/dockle:latest
+  sendmessage:
+      - name: Slack notification
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          MESSAGE: 'message'
+          USERNAME: scan-result
+          CHANNEL: times_amachi
+        uses: svikramjeet/git-actions@master
