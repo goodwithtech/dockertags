@@ -4,15 +4,21 @@ jobs:
   scan:
     name: Scan via trivy
     runs-on: ubuntu-latest
+    env:
+      IMAGE: goodwithtech/dockle
     steps:
+      - name: Fetch last tag
+        uses: docker://docker.io/goodwithtech/dockertags:latest
+        with:
+          args: $IMAGE
       - name: Scan image for vulnerabilities
         uses: docker://docker.io/aquasec/trivy:0.3.1
         with:
-          args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress goodwithtech/dockle:latest
+          args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:latest
       - name: Slack notification
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           MESSAGE: 'message'
-          USERNAME: scan-result
+          USERNAME: scanresult
           CHANNEL: times_amachi
         uses: svikramjeet/git-actions@master
