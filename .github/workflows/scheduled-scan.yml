@@ -19,7 +19,7 @@ jobs:
       - name: Scan image for vulnerabilities
         run: |
           echo ${{ steps.versions.output.target }}
-          docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:${{ steps.versions.output.target }}
+          docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:${{ steps.versions.outputs.target }}
       - name: Slack Notification
         if: failure()
         uses: rtCamp/action-slack-notify@master
