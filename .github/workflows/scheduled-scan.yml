@@ -10,12 +10,13 @@ jobs:
       - name: Fetch last tag
         uses: docker://docker.io/goodwithtech/dockertags:latest
         with:
-          args: $IMAGE
+          args: ${{ IMAGE }}
       - name: Scan image for vulnerabilities
         uses: docker://docker.io/aquasec/trivy:0.3.1
         with:
           args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:latest
       - name: Slack notification
+        if: failure()
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           MESSAGE: 'message'
