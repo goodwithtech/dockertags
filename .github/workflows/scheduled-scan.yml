@@ -11,7 +11,6 @@ jobs:
         uses: docker://docker.io/aquasec/trivy:v0.3.1
         with:
           args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress goodwithtech/dockle:latest
-  sendmessage:
       - name: Slack notification
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
