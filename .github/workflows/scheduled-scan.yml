@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Scan image for vulnerabilities
-        uses: docker://docker.io/aquasec/trivy:v0.3.1
+        uses: docker://docker.io/aquasec/trivy:0.3.1
         with:
           args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress goodwithtech/dockle:latest
       - name: Slack notification
