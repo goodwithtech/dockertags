@@ -1,7 +1,5 @@
 name: Scan with trivy
-on:
-  schedule:
-    - cron:  '* * * * *'
+on: [push]
 jobs:
   scan:
     name: Scan via trivy
