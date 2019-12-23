@@ -55,9 +55,17 @@ func Run(c *cli.Context) (err error) {
 	var writer report.Writer
 	switch format := c.String("format"); format {
 	case "json":
-		writer = &report.JsonWriter{Output: output}
+		writer = &report.JsonWriter{
+			Output:             output,
+			RepositoryName:     imageName,
+			ShowRepositoryName: c.Bool("show-repository-name"),
+		}
 	default:
-		writer = &report.TableWriter{Output: output}
+		writer = &report.TableWriter{
+			Output:             output,
+			RepositoryName:     imageName,
+			ShowRepositoryName: c.Bool("show-repository-name"),
+		}
 	}
 
 	var showTags types.ImageTags

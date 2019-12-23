@@ -4,12 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/goodwithtech/dockertags/internal/types"
 )
 
 type JsonWriter struct {
-	Output io.Writer
+	Output             io.Writer
+	RepositoryName     string
+	ShowRepositoryName bool
+}
+
+type OutputJSON struct {
+	Repository string     `json:"tags,"`
+	Tags       []string   `json:"tags"`
+	Byte       *int       `json:"byte"`
+	CreatedAt  *time.Time `json:"created_at"`
+	UploadedAt *time.Time `json:"uploaded_at"`
 }
 
 func (jw JsonWriter) Write(tags types.ImageTags) (err error) {

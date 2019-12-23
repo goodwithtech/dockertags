@@ -1,6 +1,7 @@
 package report
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -13,20 +14,35 @@ import (
 )
 
 type TableWriter struct {
-	Output io.Writer
+	Output             io.Writer
+	RepositoryName     string
+	ShowRepositoryName bool
 }
 
 func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Tag", "Size", "Created At", "Uploaded At"})
+
+	table.SetHeader([]string{"Tags", "Size", "Created At", "Uploaded At"})
+	if w.ShowRepositoryName {
+		table.SetHeader([]string{"Repository", "Tags", "Size", "Created At", "Uploaded At"})
+	}
+
 	for _, tag := range tags {
-		table.Append([]string{
+		content := []string{
 			strings.Join(tag.Tags, ","),
 			getBytesize(tag.Byte),
 			ttos(tag.CreatedAt),
 			ttos(tag.UploadedAt),
-		})
+		}
+		if w.ShowRepositoryName {
+			if len(tag.Tags) == 0 {
+				continue
+			}
+			content = append([]string{fmt.Sprintf("%s:%s", w.RepositoryName, tag.Tags[0])}, content...)
+		}
+		table.Append(content)
 	}
+
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.Render()
 

@@ -39,6 +39,10 @@ OPTIONS:
 	app.Usage = "fetch docker image tags"
 
 	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "show-repository-name, r",
+			Usage: "show image repository name and tag. <repository name>:<tag> format",
+		},
 		cli.IntFlag{
 			Name:  "limit, l",
 			Usage: "set max tags count. if exist no tag image will be short numbers. limit=0 means fetch all tags",

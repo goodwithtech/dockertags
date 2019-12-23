@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/goodwithtech/dockertags/internal/types"
@@ -17,4 +18,8 @@ func MatchConditionTags(opt *types.FilterOption, tagNames []string) (contained b
 		}
 	}
 	return false
+}
+
+func GetWithRepositoryName(repo string, tagNames []string) string {
+	return fmt.Sprintf("%s:%s", repo, tagNames[0])
 }
