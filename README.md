@@ -1,5 +1,5 @@
 # dockertags
-Show information of container image ordered by time tag created at.
+Show information of container images ordered by recently updated. <br />
 Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elastic Container Registry).
 
 <img src="assets/usage.gif" width="700">
@@ -68,8 +68,8 @@ $ dockertags -limit 2 -contain v0.2 -format json goodwithtech/dockle
 
 ## GitHub Actions
 
-You can scan target image everyday which recently updated.
-This actions notify results if detect vulnerabilities.
+You can scan target image everyday recently updated.<br />
+This actions also notify results if trivy detects vulnerabilities.
 
 ```
 name: Scan with trivy
@@ -82,13 +82,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE: goodwithtech/dockle
-      CONTAIN: v0.2
+      FILTER: v0.2    # tags pattern *v0.2*
     steps:
       - name: Fetch last tag
         id: versions
         run: |
           echo ::set-output name=trivy::$(docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
-          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain $CONTAIN -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
+          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
       - name: Scan image for vulnerabilities
         run: |
           echo ${{ steps.versions.output.target }}
@@ -97,9 +97,9 @@ jobs:
         if: failure()
         uses: rtCamp/action-slack-notify@master
         env:
-          SLACK_CHANNEL: channel
-          SLACK_MESSAGE: 'failed scan trivy'
-          SLACK_TITLE: failed
+          SLACK_CHANNEL: channel  # target channel
+          SLACK_MESSAGE: 'failed : trivy detects vulnerabilities'
+          SLACK_TITLE: trivy-scan-notifier
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 ```
 
