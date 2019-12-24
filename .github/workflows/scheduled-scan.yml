@@ -1,20 +1,30 @@
 name: Scan with trivy
 on:
   schedule:
-    - cron:  '* * * * *'
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 0 * * *'
 jobs:
   scan:
     name: Scan via trivy
     runs-on: ubuntu-latest
+    env:
+      IMAGE: goodwithtech/dockle
+      CONTAIN: v0.2
     steps:
+      - name: Fetch last tag
+        id: versions
+        run: |
+          echo ::set-output name=trivy::$(docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
+          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain $CONTAIN -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
       - name: Scan image for vulnerabilities
-        uses: docker://docker.io/aquasec/trivy:v0.3.1
-        with:
-          args: --cache-dir /var/lib/trivy --exit-code 1 --no-progress goodwithtech/dockle:latest
-      - name: Slack notification
+        run: |
+          echo ${{ steps.versions.output.target }}
+          docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:${{ steps.versions.outputs.target }}
+      - name: Slack Notification
+        if: failure()
+        uses: rtCamp/action-slack-notify@master
         env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-          MESSAGE: 'message'
-          USERNAME: scan-result
-          CHANNEL: times_amachi
-        uses: svikramjeet/git-actions@master
+          SLACK_CHANNEL: channel
+          SLACK_MESSAGE: 'failed scan trivy'
+          SLACK_TITLE: failed
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
