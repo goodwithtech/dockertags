@@ -2,7 +2,7 @@ name: Scan with trivy
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '0 * * * *'
+    - cron:  '0 0 * * *'
 jobs:
   scan:
     name: Scan via trivy
