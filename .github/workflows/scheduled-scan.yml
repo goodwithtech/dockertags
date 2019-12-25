@@ -13,18 +13,21 @@ jobs:
         run: echo ::set-output name=ver::$(
           docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE
           | jq -r .[0].tags[0]
-         )
+        )
       - name: trivyの最新イメージのタグを特定する
         id: trivy
-        run: echo ::set-output name=ver::$(docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
+        run: echo ::set-output name=ver::$(
+          docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy
+          | jq -r .[0].tags[0]
+        )
       - name: タグのチェック
         run: |
           echo trivy ${{ steps.trivy.outputs.ver }}
           echo $IMAGE ${{ steps.target.outputs.ver }}
       - name: trivyを利用して対象のイメージをスキャン
-        run: docker run aquasec/trivy:${{ steps.target.outputs.ver }}
+        run: docker run aquasec/trivy:${{ steps.trivy.outputs.ver }}
           --cache-dir /var/lib/trivy --exit-code 1 --no-progress
-          $IMAGE:${{ steps.trivy.outputs.ver }}
+          $IMAGE:${{ steps.target.outputs.ver }}
       - name: trivyのスキャンで異常があればSlackに通知
         if: failure()
         uses: rtCamp/action-slack-notify@master
