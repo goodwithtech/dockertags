@@ -92,8 +92,8 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 		}
 		tags = append(tags, types.ImageTag{
 			Tags:      tagNames,
-			Byte:      &detail.FullSize,
-			CreatedAt: &createdAt,
+			Byte:      detail.FullSize,
+			CreatedAt: createdAt,
 		})
 	}
 	return tags
@@ -113,11 +113,11 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 }
 
 func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
-	maxPage := totalCnt/types.ITEM_PER_PAGE + 1
+	maxPage := totalCnt/types.ImagePerPage + 1
 	if needCnt == 0 || option.Contain != "" {
 		return maxPage
 	}
-	needPage := needCnt/types.ITEM_PER_PAGE + 1
+	needPage := needCnt/types.ImagePerPage + 1
 	if needPage >= maxPage {
 		return maxPage
 	}

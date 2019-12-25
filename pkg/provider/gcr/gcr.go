@@ -76,8 +76,8 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       detail.Tag,
 			Byte:       getIntByte(detail.ImageSizeBytes),
-			CreatedAt:  &createdAt,
-			UploadedAt: &uploadedAt,
+			CreatedAt:  createdAt,
+			UploadedAt: uploadedAt,
 		})
 	}
 	return imageTags, nil
@@ -141,10 +141,10 @@ func (p *GCR) getCredential(ctx context.Context) (username, password string, err
 	return helper.Get(p.domain)
 }
 
-func getIntByte(strB string) *int {
+func getIntByte(strB string) int {
 	b, err := strconv.Atoi(strB)
 	if err != nil {
-		return nil
+		return 0
 	}
-	return &b
+	return b
 }

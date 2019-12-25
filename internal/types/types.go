@@ -2,8 +2,10 @@ package types
 
 import "time"
 
-const ITEM_PER_PAGE = 10
+// ImagePerPage :
+const ImagePerPage = 10
 
+// RequestOption : container registry information
 type RequestOption struct {
 	MaxCount        int
 	AuthURL         string
@@ -17,29 +19,31 @@ type RequestOption struct {
 	Timeout         time.Duration
 }
 
+// FilterOption : tag pattern
 type FilterOption struct {
 	Contain string
 }
 
+// ImageTag : tag information
 type ImageTag struct {
-	Tags       []string   `json:"tags"`
-	Byte       *int       `json:"byte"`
-	CreatedAt  *time.Time `json:"created_at"`
-	UploadedAt *time.Time `json:"uploaded_at"`
+	Tags       []string  `json:"tags"`
+	Byte       int       `json:"byte"`
+	CreatedAt  time.Time `json:"created_at"`
+	UploadedAt time.Time `json:"uploaded_at"`
 }
 
+// ImageTags : tag information slice
 type ImageTags []ImageTag
 
 func (t ImageTags) Len() int      { return len(t) }
 func (t ImageTags) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 func (t ImageTags) Less(i, j int) bool {
-	if t[i].UploadedAt != nil && t[j].UploadedAt != nil {
-		return (*(t[i].UploadedAt)).After(*(t[j].UploadedAt))
+	if !t[i].UploadedAt.IsZero() && !t[j].UploadedAt.IsZero() {
+		return (t[i].UploadedAt).After((t[j].UploadedAt))
 	}
 
-	if t[i].CreatedAt != nil && t[j].CreatedAt != nil {
-		return (*(t[i].CreatedAt)).After(*(t[j].CreatedAt))
+	if !t[i].CreatedAt.IsZero() && !t[j].CreatedAt.IsZero() {
+		return (t[i].CreatedAt).After((t[j].CreatedAt))
 	}
-
 	return true
 }
