@@ -21,7 +21,7 @@ type RequestOption struct {
 
 // FilterOption : tag pattern
 type FilterOption struct {
-	Contain string
+	Contain []string
 }
 
 // ImageTag : tag information

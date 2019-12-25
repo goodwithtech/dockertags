@@ -45,7 +45,7 @@ $ dockertags goodwithtech/dockle
 +---------+-------+----------------------+-------------+
 
 # You can set limit, filter and format
-$ dockertags -limit 2 -contain v0.2 -format json goodwithtech/dockle
+$ dockertags -limit 2 -contain v -contain 2 -format json goodwithtech/dockle
 [
   {
     "tags": [

@@ -8,11 +8,17 @@ import (
 
 // MatchConditionTags retunrn matched option
 func MatchConditionTags(opt *types.FilterOption, tagNames []string) (contained bool) {
-	if opt.Contain == "" {
+	if len(opt.Contain) == 0 {
 		return true
 	}
 	for _, tagName := range tagNames {
-		if strings.Contains(tagName, opt.Contain) {
+		var currentTagContained int
+		for _, target := range opt.Contain {
+			if strings.Contains(tagName, target) {
+				currentTagContained++
+			}
+		}
+		if len(opt.Contain) == currentTagContained {
 			return true
 		}
 	}
