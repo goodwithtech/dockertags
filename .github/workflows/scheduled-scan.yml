@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE: goodwithtech/dockle # target image name
-      FILTER: production    # tags pattern /*production*/
+      FILTER: v    # tags pattern /*production*/
     steps:
       - name: スキャン対象イメージのタグを特定する
         id: target
