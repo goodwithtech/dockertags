@@ -10,10 +10,9 @@ jobs:
     steps:
       - name: スキャン対象イメージのタグを特定する
         id: target
-        run: |
-         echo ::set-output name=ver::$(\
-          docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE \
-          | jq -r .[0].tags[0]\
+        run: echo ::set-output name=ver::$(
+          docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE
+          | jq -r .[0].tags[0]
          )
       - name: trivyの最新イメージのタグを特定する
         id: trivy
