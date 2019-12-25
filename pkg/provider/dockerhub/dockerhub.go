@@ -114,7 +114,7 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 
 func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
 	maxPage := totalCnt/types.ImagePerPage + 1
-	if needCnt == 0 || option.Contain != "" {
+	if needCnt == 0 || len(option.Contain) != 0 {
 		return maxPage
 	}
 	needPage := needCnt/types.ImagePerPage + 1

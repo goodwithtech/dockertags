@@ -81,7 +81,7 @@ func genRequestOpt(c *cli.Context) types.RequestOption {
 
 func genFilterOpt(c *cli.Context) types.FilterOption {
 	return types.FilterOption{
-		Contain: c.String("contain"),
+		Contain: c.StringSlice("contain"),
 	}
 }
 

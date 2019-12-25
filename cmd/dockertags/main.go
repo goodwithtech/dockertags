@@ -43,9 +43,9 @@ OPTIONS:
 			Name:  "limit, l",
 			Usage: "set max tags count. if exist no tag image will be short numbers. limit=0 means fetch all tags",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:  "contain, c",
-			Usage: "contains target string",
+			Usage: "contains target string. multiple string allows.",
 		},
 		cli.StringFlag{
 			Name:  "format, f",
