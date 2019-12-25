@@ -1,28 +1,31 @@
 name: Scan with trivy
-on:
-  schedule:
-    - cron:  '0 0 * * *'
+on: push
 jobs:
   scan:
     name: Scan via trivy
     runs-on: ubuntu-latest
     env:
-      IMAGE: goodwithtech/dockle
-      # "*v0.2*" pattern
-      FILTER: v0.2
+      IMAGE: goodwithtech/dockle # target image name
+      FILTER: production    # tags pattern /*production*/
     steps:
-      - name: Fetch last tag
-        id: versions
-        run: |
-          echo ::set-output name=trivy::$(docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
-          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
-      - name: Scan image for vulnerabilities
-        run: docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --exit-code 1 --no-progress $IMAGE:${{ steps.versions.outputs.target }}
-      - name: Slack Notification
+      - name: スキャン対象イメージのタグを特定する
+        id: target
+        run: echo ::set-output name=ver::$(docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
+      - name: trivyの最新イメージのタグを特定する
+        id: trivy
+        run: echo ::set-output name=ver::$(\
+            docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | \
+            jq -r .[0].tags[0] \
+          )
+      - name: trivyを利用して対象のイメージをスキャン
+        run: docker run aquasec/trivy:${{ steps.versions.outputs.trivy }}
+          --cache-dir /var/lib/trivy --exit-code 1 --no-progress
+          $IMAGE:${{ steps.versions.outputs.target }}
+      - name: trivyのスキャンで異常があればSlackに通知
         if: failure()
         uses: rtCamp/action-slack-notify@master
         env:
-          SLACK_CHANNEL: channel # set target channel name
+          SLACK_CHANNEL: channel  # target channel
           SLACK_MESSAGE: 'failed : trivy detects vulnerabilities'
           SLACK_TITLE: trivy-scan-notifier
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
