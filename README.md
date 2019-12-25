@@ -72,28 +72,39 @@ You can scan target image everyday recently updated.<br />
 This actions also notify results if trivy detects vulnerabilities.
 
 ```
-name: Scan with trivy
+name: Scan the target image with trivy
 on:
   schedule:
-    - cron:  '0 0 * * *'
+      - cron:  '0 0 * * *'
 jobs:
   scan:
     name: Scan via trivy
     runs-on: ubuntu-latest
     env:
-      IMAGE: goodwithtech/dockle
-      FILTER: v0.2    # tags pattern *v0.2*
+      IMAGE: goodwithtech/dockle # target image name
+      FILTER: v0.2    # pattern : /*v0.2*/
     steps:
-      - name: Fetch last tag
-        id: versions
+      - name: detect a target image tag
+        id: target
+        run: echo ::set-output name=ver::$(
+            docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE
+            | jq -r .[0].tags[0]
+            )
+      - name: detect a trivy image tag
+        id: trivy
+        run: echo ::set-output name=ver::$(
+            docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy
+            | jq -r .[0].tags[0]
+            )
+      - name: check tags
         run: |
-          echo ::set-output name=trivy::$(docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy | jq -r .[0].tags[0])
-          echo ::set-output name=target::$(docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE | jq -r .[0].tags[0])
-      - name: Scan image for vulnerabilities
-        run: |
-          echo ${{ steps.versions.output.target }}
-          docker run aquasec/trivy:${{ steps.versions.outputs.trivy }} --cache-dir /var/lib/trivy --exit-code 1 --no-progress $IMAGE:${{ steps.versions.outputs.target }}
-      - name: Slack Notification
+          echo trivy ${{ steps.trivy.outputs.ver }}
+          echo $IMAGE ${{ steps.target.outputs.ver }}
+      - name: scan the image with trivy
+        run: docker run aquasec/trivy:${{ steps.trivy.outputs.ver }}
+          --cache-dir /var/lib/trivy --exit-code 1 --no-progress
+          $IMAGE:${{ steps.target.outputs.ver }}
+      - name: notify to slack
         if: failure()
         uses: rtCamp/action-slack-notify@master
         env:
