@@ -11,15 +11,15 @@ jobs:
       - name: スキャン対象イメージのタグを特定する
         id: target
         run: echo ::set-output name=ver::$(
-          docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE
-          | jq -r .[0].tags[0]
-        )
+            docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE
+            | jq -r .[0].tags[0]
+            )
       - name: trivyの最新イメージのタグを特定する
         id: trivy
         run: echo ::set-output name=ver::$(
-          docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy
-          | jq -r .[0].tags[0]
-        )
+            docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy
+            | jq -r .[0].tags[0]
+            )
       - name: タグのチェック
         run: |
           echo trivy ${{ steps.trivy.outputs.ver }}
