@@ -19,6 +19,7 @@ type TableWriter struct {
 func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Tag", "Size", "Created At", "Uploaded At"})
+
 	for _, tag := range tags {
 		table.Append([]string{
 			strings.Join(tag.Tags, ","),
@@ -33,16 +34,16 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	return nil
 }
 
-func getBytesize(b *int) string {
-	if b == nil {
+func getBytesize(b int) string {
+	if b == 0 {
 		return "-"
 	}
-	return utils.ByteSize(*b)
+	return utils.ByteSize(b)
 }
 
-func ttos(t *time.Time) string {
-	if t == nil {
+func ttos(t time.Time) string {
+	if t.IsZero() {
 		return "NULL"
 	}
-	return (*t).Format(time.RFC3339)
+	return t.Format(time.RFC3339)
 }

@@ -76,11 +76,15 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 			continue
 		}
 
+		var pushedAt time.Time
+		if detail.ImagePushedAt != nil {
+			pushedAt = *detail.ImagePushedAt
+		}
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       tags,
 			Byte:       getIntByte(detail.ImageSizeInBytes),
-			CreatedAt:  nil,
-			UploadedAt: detail.ImagePushedAt,
+			CreatedAt:  time.Time{},
+			UploadedAt: pushedAt,
 		})
 	}
 
@@ -110,10 +114,9 @@ func getSession(option *types.RequestOption) (*session.Session, error) {
 	})
 }
 
-func getIntByte(b *int64) *int {
+func getIntByte(b *int64) int {
 	if b == nil {
-		return nil
+		return 0
 	}
-	i := int(*b)
-	return &i
+	return int(*b)
 }
