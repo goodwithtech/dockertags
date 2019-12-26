@@ -121,6 +121,11 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 		}
 		// update exist ImageTag
 		target.Tags = append(target.Tags, imageSummary.Name)
+		// TODO : write test codes
+		createdAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
+		if createdAt.After(target.CreatedAt) {
+			target.CreatedAt = createdAt
+		}
 		pools[firstHash] = target
 	}
 
