@@ -3,6 +3,7 @@ package report
 import (
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -21,14 +22,18 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table.SetHeader([]string{"Tag", "Size", "Created At", "Uploaded At"})
 
 	for _, tag := range tags {
+		targets := utils.StrByLen(tag.Tags)
+		sort.Sort(targets)
+
 		table.Append([]string{
-			strings.Join(tag.Tags, ","),
+			strings.Join(targets, tablewriter.NEWLINE),
 			getBytesize(tag.Byte),
 			ttos(tag.CreatedAt),
 			ttos(tag.UploadedAt),
 		})
 	}
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetRowLine(true)
 	table.Render()
 
 	return nil
