@@ -25,8 +25,9 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 		targets := utils.StrByLen(tag.Tags)
 		sort.Sort(targets)
 
+		// filled with whitespace
 		table.Append([]string{
-			strings.Join(targets, tablewriter.NEWLINE),
+			strings.Join(fillWithSpaces(targets), tablewriter.NEWLINE),
 			getBytesize(tag.Byte),
 			ttos(tag.CreatedAt),
 			ttos(tag.UploadedAt),
@@ -37,6 +38,19 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table.Render()
 
 	return nil
+}
+
+func fillWithSpaces(tagNames []string) []string {
+	fillWithSpaces := []string{}
+	for _, tag := range tagNames {
+		tagStr := tag
+		whitespaceCnt := tablewriter.MAX_ROW_WIDTH - len(tag)
+		if whitespaceCnt > 0 {
+			tagStr = tag + strings.Repeat(tablewriter.SPACE, whitespaceCnt)
+		}
+		fillWithSpaces = append(fillWithSpaces, tagStr)
+	}
+	return fillWithSpaces
 }
 
 func getBytesize(b int) string {
