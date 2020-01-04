@@ -23,6 +23,7 @@ func fetchURL(url string, cookie *http.Cookie) ([]byte, error) {
 	return body, nil
 }
 
+// FetchLatestVersion returns latest dockertags version
 func FetchLatestVersion() (version string, err error) {
 	log.Logger.Debug("Fetch latest version from github")
 	body, err := fetchURL(

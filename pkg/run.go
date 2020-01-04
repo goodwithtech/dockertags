@@ -15,6 +15,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// Run runs dockertag operation
 func Run(c *cli.Context) (err error) {
 	debug := c.Bool("debug")
 	// reload logger if set flag
@@ -88,16 +89,12 @@ func genFilterOpt(c *cli.Context) types.FilterOption {
 func genOpts(c *cli.Context) (*types.RequestOption, *types.FilterOption, error) {
 	reqOpt := genRequestOpt(c)
 	filterOpt := genFilterOpt(c)
-	// fetch all tags when use -contain
-	// if reqOpt.MaxCount != 0 && filterOpt.Contain != "" {
-	// 	return nil, nil, errors.New("you can't set 'contain string' and 'latest' both ways")
-	// }
 	return &reqOpt, &filterOpt, nil
 }
 
 func fetchImageName(args []string) (string, error) {
 	if len(args) != 1 {
-		return "", errors.New(`"dockertags" requires one argument.`)
+		return "", errors.New("dockertags requires one argument")
 	}
 	return args[0], nil
 }

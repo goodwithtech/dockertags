@@ -18,36 +18,12 @@ import (
 
 const registryURL = "https://registry.hub.docker.com/"
 
+// DockerHub implements Run
 type DockerHub struct {
 	filterOpt *types.FilterOption
 }
 
-type tagsResponse struct {
-	Count    int            `json:"count"`
-	Next     string         `json:"next"`
-	Previous string         `json:"previous"`
-	Results  []ImageSummary `json:"results"`
-}
-
-type ImageSummary struct {
-	Name        string `json:"name"`
-	FullSize    int    `json:"full_size"`
-	LastUpdated string `json:"last_updated"`
-	Images      Images `json:"images"`
-}
-
-type Images []Image
-type Image struct {
-	Digest       string `json:"digest"`
-	Architecture string `json:"architecture"`
-}
-
-func (t Images) Len() int      { return len(t) }
-func (t Images) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
-func (t Images) Less(i, j int) bool {
-	return (t[i].Digest) > (t[j].Digest)
-}
-
+// Run returns tag list
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
 	auth := dockertypes.AuthConfig{
@@ -97,10 +73,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	return p.convertResultToTag(totalTagSummary), nil
 }
 
-func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
-	// TODO : refactor it
-
-	// create map : key is image hash
+func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 	pools := map[string]types.ImageTag{}
 	for _, imageSummary := range summaries {
 		if imageSummary.Name == "" {
@@ -128,7 +101,14 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 		}
 		pools[firstHash] = target
 	}
+	return pools
+}
 
+func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
+	// TODO : refactor it
+
+	// create map : key is image hash
+	pools := summarizeByHash(summaries)
 	tags := []types.ImageTag{}
 	for _, imageTag := range pools {
 		if !utils.MatchConditionTags(p.filterOpt, imageTag.Tags) {
