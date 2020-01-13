@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
 
+// define byte units
 const (
 	BYTE = 1 << (10 * iota)
 	KILOBYTE
@@ -13,9 +13,7 @@ const (
 	GIGABYTE
 )
 
-var invalidByteQuantityError = errors.New("byte quantity must be a positive integer with a unit of measurement like M, MB, MiB, G, GiB, or GB")
-
-// The unit that results in the smallest number greater than or equal to 1 is always chosen.
+// ByteSize returns string format with unit.
 func ByteSize(bytes int) string {
 	unit := ""
 	value := float64(bytes)

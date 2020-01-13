@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -79,6 +80,114 @@ func TestScanImage(t *testing.T) {
 		}
 		sort.Sort(actual)
 		if diff := cmp.Diff(v.expected, actual, opts...); diff != "" {
+			t.Errorf("%s: diff %v", tc, diff)
+		}
+	}
+}
+
+func TestSummarizeByHash(t *testing.T) {
+	testcases := map[string]struct {
+		tags     []ImageSummary
+		expected map[string]types.ImageTag
+	}{
+		"OK": {
+			tags: []ImageSummary{
+				{
+					Name:        "a",
+					LastUpdated: "2019-12-02T00:00:00.00000Z",
+					Images: []Image{
+						{Digest: "001", Architecture: "999test"},
+						{Digest: "100", Architecture: "998test"},
+						{Digest: "200", Architecture: "997test"},
+						{Digest: "300", Architecture: "996test"},
+						{Digest: "400", Architecture: "995test"},
+					},
+				},
+				{
+					Name:        "b",
+					LastUpdated: "2019-12-01T00:00:00.00000Z",
+					Images: []Image{
+						{Digest: "400b", Architecture: "995test"},
+						{Digest: "001b", Architecture: "999test"},
+						{Digest: "100b", Architecture: "998test"},
+						{Digest: "200b", Architecture: "997test"},
+						{Digest: "300b", Architecture: "996test"},
+					},
+				},
+				{
+					Name:        "c",
+					LastUpdated: "2019-12-03T00:00:00.00000Z",
+					Images: []Image{
+						{Digest: "400", Architecture: "995test"},
+						{Digest: "300", Architecture: "996test"},
+						{Digest: "001", Architecture: "999test"},
+						{Digest: "100", Architecture: "998test"},
+						{Digest: "200", Architecture: "997test"},
+					},
+				},
+			},
+			expected: map[string]types.ImageTag{
+				"400": {
+					Tags:      []string{"a", "c"},
+					CreatedAt: time.Date(2019, time.December, 3, 0, 0, 0, 0, time.UTC),
+				},
+				"400b": {
+					Tags:      []string{"b"},
+					CreatedAt: time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC),
+				},
+			},
+		},
+		"LoadUpdatedAt": {
+			tags: []ImageSummary{
+				{
+					Name:        "a",
+					LastUpdated: "2019-12-02T00:00:00.00000Z",
+					Images: []Image{
+						{Digest: "001", Architecture: "999test"},
+						{Digest: "100", Architecture: "998test"},
+						{Digest: "200", Architecture: "997test"},
+						{Digest: "300", Architecture: "996test"},
+						{Digest: "400", Architecture: "995test"},
+					},
+				},
+				{
+					Name:        "b",
+					LastUpdated: "2019-12-01T00:00:00.00000Z",
+					Images: []Image{
+						{Digest: "400b", Architecture: "995test"},
+						{Digest: "001b", Architecture: "999test"},
+						{Digest: "100b", Architecture: "998test"},
+						{Digest: "200b", Architecture: "997test"},
+						{Digest: "300b", Architecture: "996test"},
+					},
+				},
+				{
+					Name:        "c",
+					LastUpdated: "2019-12-01T00:00:00.00000Z",
+					Images: []Image{
+						{Digest: "400", Architecture: "995test"},
+						{Digest: "300", Architecture: "996test"},
+						{Digest: "001", Architecture: "999test"},
+						{Digest: "100", Architecture: "998test"},
+						{Digest: "200", Architecture: "997test"},
+					},
+				},
+			},
+			expected: map[string]types.ImageTag{
+				"400": {
+					Tags:      []string{"a", "c"},
+					CreatedAt: time.Date(2019, time.December, 2, 0, 0, 0, 0, time.UTC),
+				},
+				"400b": {
+					Tags:      []string{"b"},
+					CreatedAt: time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC),
+				},
+			},
+		},
+	}
+	for tc, v := range testcases {
+		actual := summarizeByHash(v.tags)
+		if diff := cmp.Diff(v.expected, actual); diff != "" {
 			t.Errorf("%s: diff %v", tc, diff)
 		}
 	}

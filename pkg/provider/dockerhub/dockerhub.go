@@ -18,36 +18,12 @@ import (
 
 const registryURL = "https://registry.hub.docker.com/"
 
+// DockerHub implements Run
 type DockerHub struct {
 	filterOpt *types.FilterOption
 }
 
-type tagsResponse struct {
-	Count    int            `json:"count"`
-	Next     string         `json:"next"`
-	Previous string         `json:"previous"`
-	Results  []ImageSummary `json:"results"`
-}
-
-type ImageSummary struct {
-	Name        string `json:"name"`
-	FullSize    int    `json:"full_size"`
-	LastUpdated string `json:"last_updated"`
-	Images      Images `json:"images"`
-}
-
-type Images []Image
-type Image struct {
-	Digest       string `json:"digest"`
-	Architecture string `json:"architecture"`
-}
-
-func (t Images) Len() int      { return len(t) }
-func (t Images) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
-func (t Images) Less(i, j int) bool {
-	return (t[i].Digest) > (t[j].Digest)
-}
-
+// Run returns tag list
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
 	auth := dockertypes.AuthConfig{
@@ -60,17 +36,11 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	if err != nil {
 		return nil, err
 	}
-	// imageTags := p.convertResultToTag(tagResp.Results)
-	// if reqOpt.MaxCount > 0 && len(imageTags) > reqOpt.MaxCount {
-	// 	return imageTags, nil
-	// }
 
 	// create all in one []ImageSummary
 	totalTagSummary := tagResp.Results
-
 	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
 	// create ch (page - 1), already fetched first page,
-	//tagsPerPage := make(chan types.ImageTags, lastPage-1)
 	tagsPerPage := make(chan []ImageSummary, lastPage-1)
 	eg := errgroup.Group{}
 	for page := 2; page <= lastPage; page++ {
@@ -97,10 +67,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	return p.convertResultToTag(totalTagSummary), nil
 }
 
-func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
-	// TODO : refactor it
-
-	// create map : key is image hash
+func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 	pools := map[string]types.ImageTag{}
 	for _, imageSummary := range summaries {
 		if imageSummary.Name == "" {
@@ -119,16 +86,20 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 			pools[firstHash] = createImageTag(imageSummary)
 			continue
 		}
-		// update exist ImageTag
+		// set newer CreatedAt
 		target.Tags = append(target.Tags, imageSummary.Name)
-		// TODO : write test codes
 		createdAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
 		if createdAt.After(target.CreatedAt) {
 			target.CreatedAt = createdAt
 		}
 		pools[firstHash] = target
 	}
+	return pools
+}
 
+func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
+	// create map : key is image hash
+	pools := summarizeByHash(summaries)
 	tags := []types.ImageTag{}
 	for _, imageTag := range pools {
 		if !utils.MatchConditionTags(p.filterOpt, imageTag.Tags) {
@@ -163,8 +134,8 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 }
 
 func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
-	// TODO : currently always fetch all pages for show alias
 	return totalCnt/types.ImagePerPage + 1
+	// TODO : currently always fetch all pages for show alias
 	// maxPage := totalCnt/types.ImagePerPage + 1
 	// if needCnt == 0 || len(option.Contain) != 0 {
 	// 	return maxPage
