@@ -36,17 +36,11 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	if err != nil {
 		return nil, err
 	}
-	// imageTags := p.convertResultToTag(tagResp.Results)
-	// if reqOpt.MaxCount > 0 && len(imageTags) > reqOpt.MaxCount {
-	// 	return imageTags, nil
-	// }
 
 	// create all in one []ImageSummary
 	totalTagSummary := tagResp.Results
-
 	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
 	// create ch (page - 1), already fetched first page,
-	//tagsPerPage := make(chan types.ImageTags, lastPage-1)
 	tagsPerPage := make(chan []ImageSummary, lastPage-1)
 	eg := errgroup.Group{}
 	for page := 2; page <= lastPage; page++ {
@@ -92,9 +86,8 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 			pools[firstHash] = createImageTag(imageSummary)
 			continue
 		}
-		// update exist ImageTag
+		// set newer CreatedAt
 		target.Tags = append(target.Tags, imageSummary.Name)
-		// TODO : write test codes
 		createdAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
 		if createdAt.After(target.CreatedAt) {
 			target.CreatedAt = createdAt
@@ -105,8 +98,6 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 }
 
 func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
-	// TODO : refactor it
-
 	// create map : key is image hash
 	pools := summarizeByHash(summaries)
 	tags := []types.ImageTag{}
@@ -143,8 +134,8 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 }
 
 func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
-	// TODO : currently always fetch all pages for show alias
 	return totalCnt/types.ImagePerPage + 1
+	// TODO : currently always fetch all pages for show alias
 	// maxPage := totalCnt/types.ImagePerPage + 1
 	// if needCnt == 0 || len(option.Contain) != 0 {
 	// 	return maxPage
