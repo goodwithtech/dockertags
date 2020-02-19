@@ -23,6 +23,10 @@ type DockerHub struct {
 	filterOpt *types.FilterOption
 }
 
+type App struct {
+	ID string
+}
+
 // Run returns tag list
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
@@ -64,6 +68,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 			totalTagSummary = append(totalTagSummary, tags...)
 		}
 	}
+	close(tagsPerPage)
 	return p.convertResultToTag(totalTagSummary), nil
 }
 
@@ -81,16 +86,16 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 		sort.Sort(imageSummary.Images)
 		firstHash := imageSummary.Images[0].Digest
 		target, ok := pools[firstHash]
-		// create first one if not exist
+		// create first hash key if not exist
 		if !ok {
-			pools[firstHash] = createImageTag(imageSummary)
+			pools[firstHash] = uploadImageTag(imageSummary)
 			continue
 		}
-		// set newer CreatedAt
+		// set newer uploaded at
 		target.Tags = append(target.Tags, imageSummary.Name)
-		createdAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
-		if createdAt.After(target.CreatedAt) {
-			target.CreatedAt = createdAt
+		uploadedAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
+		if uploadedAt.After(target.CreatedAt) {
+			target.CreatedAt = uploadedAt
 		}
 		pools[firstHash] = target
 	}
@@ -110,13 +115,13 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 	return tags
 }
 
-func createImageTag(is ImageSummary) types.ImageTag {
-	createdAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
+func uploadImageTag(is ImageSummary) types.ImageTag {
+	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
 	return types.ImageTag{
-		Tags:      tagNames,
-		Byte:      is.FullSize,
-		CreatedAt: createdAt,
+		Tags:       tagNames,
+		Byte:       is.FullSize,
+		UploadedAt: uploadedAt,
 	}
 }
 
