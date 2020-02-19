@@ -83,7 +83,6 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       tags,
 			Byte:       getIntByte(detail.ImageSizeInBytes),
-			CreatedAt:  time.Time{},
 			UploadedAt: pushedAt,
 		})
 	}
