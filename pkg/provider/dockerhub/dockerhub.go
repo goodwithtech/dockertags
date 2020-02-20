@@ -94,8 +94,8 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 		// set newer uploaded at
 		target.Tags = append(target.Tags, imageSummary.Name)
 		uploadedAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
-		if uploadedAt.After(target.CreatedAt) {
-			target.CreatedAt = uploadedAt
+		if uploadedAt.After(target.UploadedAt) {
+			target.UploadedAt = uploadedAt
 		}
 		pools[firstHash] = target
 	}
