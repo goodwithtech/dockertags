@@ -8,11 +8,13 @@ import (
 	"github.com/goodwithtech/dockertags/internal/types"
 )
 
-type JsonWriter struct {
+// JSONWriter create json output
+type JSONWriter struct {
 	Output io.Writer
 }
 
-func (jw JsonWriter) Write(tags types.ImageTags) (err error) {
+// Write is
+func (jw JSONWriter) Write(tags types.ImageTags) (err error) {
 	output, err := json.MarshalIndent(tags, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal json: %w", err)

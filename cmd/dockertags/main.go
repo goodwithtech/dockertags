@@ -58,7 +58,7 @@ OPTIONS:
 		},
 		cli.StringFlag{
 			Name:  "authurl, auth",
-			Usage: "Url when fetch authentication",
+			Usage: "GetURL when fetch authentication",
 		},
 		cli.DurationFlag{
 			Name:  "timeout, t",

@@ -16,23 +16,30 @@ import (
 	dockertypes "github.com/docker/docker/api/types"
 )
 
-const registryURL = "https://registry.hub.docker.com/"
+const (
+	registryURL = "https://registry.hub.docker.com/"
+	rateLimit   = 64
+)
 
 // DockerHub implements Run
 type DockerHub struct {
-	filterOpt *types.FilterOption
+	filterOpt  *types.FilterOption
+	requestOpt *types.RequestOption
+	authCfg    dockertypes.AuthConfig
 }
 
 // Run returns tag list
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
-	auth := dockertypes.AuthConfig{
+	p.requestOpt = reqOpt
+	p.authCfg = dockertypes.AuthConfig{
 		ServerAddress: "registry.hub.docker.com",
 		Username:      reqOpt.UserName,
 		Password:      reqOpt.Password,
 	}
+
 	// fetch page 1 for check max item count.
-	tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, 1)
+	tagResp, err := getTagResponse(ctx, p.authCfg, reqOpt.Timeout, repository, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +49,29 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
 	// create ch (page - 1), already fetched first page,
 	tagsPerPage := make(chan []ImageSummary, lastPage-1)
-	eg := errgroup.Group{}
+	if err = p.controlGetTags(ctx, tagsPerPage, repository, 2, lastPage); err != nil {
+		return nil, err
+	}
 	for page := 2; page <= lastPage; page++ {
+		select {
+		case tags := <-tagsPerPage:
+			totalTagSummary = append(totalTagSummary, tags...)
+		}
+	}
+	close(tagsPerPage)
+	return p.convertResultToTag(totalTagSummary), nil
+}
+
+// rate limit for socket: too many open files
+func (p *DockerHub) controlGetTags(ctx context.Context, tagsPerPage chan []ImageSummary, repository string, from, to int) error {
+	slots := make(chan struct{}, rateLimit)
+	eg := errgroup.Group{}
+	for page := from; page <= to; page++ {
 		page := page
+		slots <- struct{}{}
 		eg.Go(func() error {
-			tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, page)
+			defer func() { <-slots }()
+			tagResp, err := getTagResponse(ctx, p.authCfg, p.requestOpt.Timeout, repository, page)
 			if err != nil {
 				return err
 			}
@@ -54,17 +79,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 			return nil
 		})
 	}
-	if err := eg.Wait(); err != nil {
-		return nil, err
-	}
-
-	for page := 2; page <= lastPage; page++ {
-		select {
-		case tags := <-tagsPerPage:
-			totalTagSummary = append(totalTagSummary, tags...)
-		}
-	}
-	return p.convertResultToTag(totalTagSummary), nil
+	return eg.Wait()
 }
 
 func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
@@ -81,16 +96,16 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 		sort.Sort(imageSummary.Images)
 		firstHash := imageSummary.Images[0].Digest
 		target, ok := pools[firstHash]
-		// create first one if not exist
+		// create first hash key if not exist
 		if !ok {
-			pools[firstHash] = createImageTag(imageSummary)
+			pools[firstHash] = convertUploadImageTag(imageSummary)
 			continue
 		}
-		// set newer CreatedAt
+		// set newer uploaded at
 		target.Tags = append(target.Tags, imageSummary.Name)
-		createdAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
-		if createdAt.After(target.CreatedAt) {
-			target.CreatedAt = createdAt
+		uploadedAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
+		if uploadedAt.After(target.UploadedAt) {
+			target.UploadedAt = uploadedAt
 		}
 		pools[firstHash] = target
 	}
@@ -110,13 +125,13 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 	return tags
 }
 
-func createImageTag(is ImageSummary) types.ImageTag {
-	createdAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
+func convertUploadImageTag(is ImageSummary) types.ImageTag {
+	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
 	return types.ImageTag{
-		Tags:      tagNames,
-		Byte:      is.FullSize,
-		CreatedAt: createdAt,
+		Tags:       tagNames,
+		Byte:       is.FullSize,
+		UploadedAt: uploadedAt,
 	}
 }
 

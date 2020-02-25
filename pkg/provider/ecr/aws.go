@@ -19,12 +19,14 @@ import (
 	service "github.com/aws/aws-sdk-go/service/ecr"
 )
 
+// ECR :
 type ECR struct{}
 
 var _ time.Duration
 var _ strings.Reader
 var _ aws.Config
 
+// Run : interface method
 func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	sess, err := getSession(reqOpt)
 	if err != nil {
@@ -83,7 +85,6 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       tags,
 			Byte:       getIntByte(detail.ImageSizeInBytes),
-			CreatedAt:  time.Time{},
 			UploadedAt: pushedAt,
 		})
 	}

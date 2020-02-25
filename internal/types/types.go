@@ -35,6 +35,7 @@ type ImageTag struct {
 // ImageTags : tag information slice
 type ImageTags []ImageTag
 
+// Len interface method of sort
 func (t ImageTags) Len() int      { return len(t) }
 func (t ImageTags) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 func (t ImageTags) Less(i, j int) bool {
