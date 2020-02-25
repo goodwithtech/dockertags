@@ -56,7 +56,7 @@ func Run(c *cli.Context) (err error) {
 	var writer report.Writer
 	switch format := c.String("format"); format {
 	case "json":
-		writer = &report.JsonWriter{Output: output}
+		writer = &report.JSONWriter{Output: output}
 	default:
 		writer = &report.TableWriter{Output: output}
 	}

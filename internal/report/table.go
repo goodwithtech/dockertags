@@ -13,10 +13,12 @@ import (
 	"github.com/goodwithtech/dockertags/internal/utils"
 )
 
+// TableWriter output table format
 type TableWriter struct {
 	Output io.Writer
 }
 
+// Write is
 func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Tag", "Size", "Created At", "Uploaded At"})

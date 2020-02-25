@@ -20,6 +20,7 @@ import (
 	"github.com/goodwithtech/dockertags/pkg/registry"
 )
 
+// GCR :
 type GCR struct {
 	registry *registry.Registry
 	domain   string
@@ -30,16 +31,17 @@ type GCR struct {
 type tagsResponse struct {
 	Next     string                     `json:"next"`
 	Previous string                     `json:"previous"`
-	Manifest map[string]ManifestSummary `json:"manifest"`
+	Manifest map[string]manifestSummary `json:"manifest"`
 }
 
-type ManifestSummary struct {
+type manifestSummary struct {
 	Tag            []string `json:"tag"`
 	ImageSizeBytes string   `json:"imageSizeBytes"`
 	CreatedMS      string   `json:"timeCreatedMs"`
 	UploadedMS     string   `json:"timeUploadedMs"`
 }
 
+// Run : interface method
 func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (imageTags types.ImageTags, err error) {
 	p.domain = domain
 	p.reqOpt = reqOpt
@@ -93,8 +95,8 @@ func stringMStoTime(msstring string) (time.Time, error) {
 }
 
 // getTags returns the tags
-func (p *GCR) getTags(ctx context.Context, repository string) (map[string]ManifestSummary, error) {
-	url := p.registry.Url("/v2/%s/tags/list", repository)
+func (p *GCR) getTags(ctx context.Context, repository string) (map[string]manifestSummary, error) {
+	url := p.registry.GetURL("/v2/%s/tags/list", repository)
 	log.Logger.Debugf("url=%s,repository=%s", url, repository)
 
 	var response tagsResponse

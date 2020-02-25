@@ -108,14 +108,14 @@ func newFromTransport(ctx context.Context, auth types.AuthConfig, transport http
 	return registry, nil
 }
 
-// Url : url returns a registry URL with the passed arguements concatenated.
-func (r *Registry) Url(pathTemplate string, args ...interface{}) string {
+// GetURL returns a registry URL with the passed arguements concatenated.
+func (r *Registry) GetURL(pathTemplate string, args ...interface{}) string {
 	pathSuffix := fmt.Sprintf(pathTemplate, args...)
 	url := fmt.Sprintf("%s%s", r.URL, pathSuffix)
 	return url
 }
 
-// GetJSON
+// GetJSON returns api
 func (r *Registry) GetJSON(ctx context.Context, url string, response interface{}) (http.Header, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -21,17 +21,19 @@ const (
 	gcrURL = "gcr.io"
 )
 
+// Provider :
 type Provider interface {
 	Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error)
 }
 
+// Exec execute run in each provider
 func Exec(imageName string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	image, err := image.ParseImage(imageName)
 	if err != nil {
 		return nil, err
 	}
 
-	p := NewProvider(image.Domain)
+	p := newProvider(image.Domain)
 	ctx, cancel := context.WithTimeout(context.Background(), reqOpt.Timeout)
 	defer cancel()
 	imageTags, err := p.Run(ctx, image.Domain, image.Path, reqOpt, filterOpt)
@@ -42,7 +44,7 @@ func Exec(imageName string, reqOpt *types.RequestOption, filterOpt *types.Filter
 	return imageTags, nil
 }
 
-func NewProvider(domain string) Provider {
+func newProvider(domain string) Provider {
 	if strings.HasSuffix(domain, ecrURL) {
 		return &ecr.ECR{}
 	}

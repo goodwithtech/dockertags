@@ -14,14 +14,14 @@ type authToken struct {
 	Token string `json:"token"`
 }
 
-type DockerhubTokenTransport struct {
+type tokenTransport struct {
 	Transport http.RoundTripper
 	Username  string
 	Password  string
 }
 
 // RoundTrip defines the round tripper for token transport.
-func (t *DockerhubTokenTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *tokenTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	resp, err := t.Transport.RoundTrip(req)
 	if err != nil {
 		return resp, err
@@ -46,7 +46,7 @@ func isTokenDemand(resp *http.Response) bool {
 	return false
 }
 
-func (t *DockerhubTokenTransport) authAndRetry(req *http.Request) (*http.Response, error) {
+func (t *tokenTransport) authAndRetry(req *http.Request) (*http.Response, error) {
 	token, authResp, err := t.auth(req.Context())
 	if err != nil {
 		return authResp, err
@@ -59,12 +59,12 @@ func (t *DockerhubTokenTransport) authAndRetry(req *http.Request) (*http.Respons
 	return response, err
 }
 
-func (t *DockerhubTokenTransport) retry(req *http.Request, token string) (*http.Response, error) {
+func (t *tokenTransport) retry(req *http.Request, token string) (*http.Response, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	return t.Transport.RoundTrip(req)
 }
 
-func (t *DockerhubTokenTransport) auth(ctx context.Context) (string, *http.Response, error) {
+func (t *tokenTransport) auth(ctx context.Context) (string, *http.Response, error) {
 	jsonStr := []byte(fmt.Sprintf(`{"username": "%s","password": "%s"}`, t.Username, t.Password))
 	req, err := http.NewRequest("POST", authURL, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")

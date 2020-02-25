@@ -30,7 +30,7 @@ func getJSON(ctx context.Context, url string, auth types.AuthConfig, timeout tim
 
 func new(auth types.AuthConfig, timeout time.Duration) (*http.Client, error) {
 	transport := http.DefaultTransport
-	tokenTransport := &DockerhubTokenTransport{
+	tokenTransport := &tokenTransport{
 		Transport: transport,
 		Username:  auth.Username,
 		Password:  auth.Password,

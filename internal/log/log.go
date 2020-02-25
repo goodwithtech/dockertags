@@ -8,10 +8,12 @@ import (
 )
 
 var (
+	// Logger is
 	Logger      *zap.SugaredLogger
 	debugOption bool
 )
 
+// InitLogger set SugaredLogger to log.Logger
 func InitLogger(debug bool) (err error) {
 	debugOption = debug
 	Logger, err = newLogger(debug)
