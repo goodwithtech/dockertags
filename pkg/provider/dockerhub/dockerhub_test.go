@@ -76,7 +76,7 @@ func TestScanImage(t *testing.T) {
 				sort.Strings(out)
 				return out
 			}),
-			cmpopts.IgnoreFields(types.ImageTag{}, "Byte", "CreatedAt"),
+			cmpopts.IgnoreFields(types.ImageTag{}, "Byte", "UploadedAt"),
 		}
 		sort.Sort(actual)
 		if diff := cmp.Diff(v.expected, actual, opts...); diff != "" {
@@ -128,12 +128,12 @@ func TestSummarizeByHash(t *testing.T) {
 			},
 			expected: map[string]types.ImageTag{
 				"400": {
-					Tags:      []string{"a", "c"},
-					CreatedAt: time.Date(2019, time.December, 3, 0, 0, 0, 0, time.UTC),
+					Tags:       []string{"a", "c"},
+					UploadedAt: time.Date(2019, time.December, 3, 0, 0, 0, 0, time.UTC),
 				},
 				"400b": {
-					Tags:      []string{"b"},
-					CreatedAt: time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC),
+					Tags:       []string{"b"},
+					UploadedAt: time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC),
 				},
 			},
 		},
@@ -175,12 +175,12 @@ func TestSummarizeByHash(t *testing.T) {
 			},
 			expected: map[string]types.ImageTag{
 				"400": {
-					Tags:      []string{"a", "c"},
-					CreatedAt: time.Date(2019, time.December, 2, 0, 0, 0, 0, time.UTC),
+					Tags:       []string{"a", "c"},
+					UploadedAt: time.Date(2019, time.December, 2, 0, 0, 0, 0, time.UTC),
 				},
 				"400b": {
-					Tags:      []string{"b"},
-					CreatedAt: time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC),
+					Tags:       []string{"b"},
+					UploadedAt: time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC),
 				},
 			},
 		},

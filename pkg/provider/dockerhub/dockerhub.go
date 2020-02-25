@@ -28,10 +28,6 @@ type DockerHub struct {
 	authCfg    dockertypes.AuthConfig
 }
 
-type App struct {
-	ID string
-}
-
 // Run returns tag list
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
@@ -102,7 +98,7 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 		target, ok := pools[firstHash]
 		// create first hash key if not exist
 		if !ok {
-			pools[firstHash] = uploadImageTag(imageSummary)
+			pools[firstHash] = convertUploadImageTag(imageSummary)
 			continue
 		}
 		// set newer uploaded at
@@ -129,7 +125,7 @@ func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags
 	return tags
 }
 
-func uploadImageTag(is ImageSummary) types.ImageTag {
+func convertUploadImageTag(is ImageSummary) types.ImageTag {
 	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
 	return types.ImageTag{
