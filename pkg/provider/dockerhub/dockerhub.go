@@ -16,11 +16,16 @@ import (
 	dockertypes "github.com/docker/docker/api/types"
 )
 
-const registryURL = "https://registry.hub.docker.com/"
+const (
+	registryURL = "https://registry.hub.docker.com/"
+	rateLimit   = 64
+)
 
 // DockerHub implements Run
 type DockerHub struct {
-	filterOpt *types.FilterOption
+	filterOpt  *types.FilterOption
+	requestOpt *types.RequestOption
+	authCfg    dockertypes.AuthConfig
 }
 
 type App struct {
@@ -30,13 +35,15 @@ type App struct {
 // Run returns tag list
 func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *types.RequestOption, filterOpt *types.FilterOption) (types.ImageTags, error) {
 	p.filterOpt = filterOpt
-	auth := dockertypes.AuthConfig{
+	p.requestOpt = reqOpt
+	p.authCfg = dockertypes.AuthConfig{
 		ServerAddress: "registry.hub.docker.com",
 		Username:      reqOpt.UserName,
 		Password:      reqOpt.Password,
 	}
+
 	// fetch page 1 for check max item count.
-	tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, 1)
+	tagResp, err := getTagResponse(ctx, p.authCfg, reqOpt.Timeout, repository, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -46,22 +53,9 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
 	// create ch (page - 1), already fetched first page,
 	tagsPerPage := make(chan []ImageSummary, lastPage-1)
-	eg := errgroup.Group{}
-	for page := 2; page <= lastPage; page++ {
-		page := page
-		eg.Go(func() error {
-			tagResp, err := getTagResponse(ctx, auth, reqOpt.Timeout, repository, page)
-			if err != nil {
-				return err
-			}
-			tagsPerPage <- tagResp.Results
-			return nil
-		})
-	}
-	if err := eg.Wait(); err != nil {
+	if err = p.controlGetTags(ctx, tagsPerPage, repository, 2, lastPage); err != nil {
 		return nil, err
 	}
-
 	for page := 2; page <= lastPage; page++ {
 		select {
 		case tags := <-tagsPerPage:
@@ -70,6 +64,26 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	}
 	close(tagsPerPage)
 	return p.convertResultToTag(totalTagSummary), nil
+}
+
+// rate limit for socket: too many open files
+func (p *DockerHub) controlGetTags(ctx context.Context, tagsPerPage chan []ImageSummary, repository string, from, to int) error {
+	slots := make(chan struct{}, rateLimit)
+	eg := errgroup.Group{}
+	for page := from; page <= to; page++ {
+		page := page
+		slots <- struct{}{}
+		eg.Go(func() error {
+			defer func() { <-slots }()
+			tagResp, err := getTagResponse(ctx, p.authCfg, p.requestOpt.Timeout, repository, page)
+			if err != nil {
+				return err
+			}
+			tagsPerPage <- tagResp.Results
+			return nil
+		})
+	}
+	return eg.Wait()
 }
 
 func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
