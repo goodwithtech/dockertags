@@ -21,7 +21,7 @@ type TableWriter struct {
 // Write is
 func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Tag", "Size", "Created At", "Uploaded At"})
+	table.SetHeader([]string{"Tag", "Size", "Hash", "OS/ARCH", "Created At", "Uploaded At"})
 
 	for _, tag := range tags {
 		targets := utils.StrByLen(tag.Tags)
@@ -31,6 +31,8 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 		table.Append([]string{
 			strings.Join(fillWithSpaces(targets), tablewriter.NEWLINE),
 			getBytesize(tag.Byte),
+			trimHash(tag.Hash),
+			strings.Join(fillWithSpaces(tag.OsArchs), tablewriter.NEWLINE),
 			ttos(tag.CreatedAt),
 			ttos(tag.UploadedAt),
 		})
@@ -38,7 +40,6 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.SetRowLine(true)
 	table.Render()
-
 	return nil
 }
 

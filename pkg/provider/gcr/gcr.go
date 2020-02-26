@@ -60,7 +60,7 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 		return nil, err
 	}
 
-	for _, detail := range tags {
+	for hash, detail := range tags {
 		if len(detail.Tag) == 0 {
 			continue
 		}
@@ -78,6 +78,7 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 		imageTags = append(imageTags, types.ImageTag{
 			Tags:       detail.Tag,
 			Byte:       getIntByte(detail.ImageSizeBytes),
+			Hash:       hash,
 			CreatedAt:  createdAt,
 			UploadedAt: uploadedAt,
 		})

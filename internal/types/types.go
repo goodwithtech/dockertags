@@ -27,6 +27,8 @@ type FilterOption struct {
 // ImageTag : tag information
 type ImageTag struct {
 	Tags       []string  `json:"tags"`
+	Hash       string    `json:"hash"`
+	OsArchs    []string  `json:"os/archs"`
 	Byte       int       `json:"byte"`
 	CreatedAt  time.Time `json:"created_at"`
 	UploadedAt time.Time `json:"uploaded_at"`

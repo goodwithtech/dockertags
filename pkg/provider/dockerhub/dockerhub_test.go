@@ -87,15 +87,15 @@ func TestScanImage(t *testing.T) {
 
 func TestSummarizeByHash(t *testing.T) {
 	testcases := map[string]struct {
-		tags     []ImageSummary
+		tags     []tagSummary
 		expected map[string]types.ImageTag
 	}{
 		"OK": {
-			tags: []ImageSummary{
+			tags: []tagSummary{
 				{
 					Name:        "a",
 					LastUpdated: "2019-12-02T00:00:00.00000Z",
-					Images: []Image{
+					Images: []image{
 						{Digest: "001", Architecture: "999test"},
 						{Digest: "100", Architecture: "998test"},
 						{Digest: "200", Architecture: "997test"},
@@ -106,7 +106,7 @@ func TestSummarizeByHash(t *testing.T) {
 				{
 					Name:        "b",
 					LastUpdated: "2019-12-01T00:00:00.00000Z",
-					Images: []Image{
+					Images: []image{
 						{Digest: "400b", Architecture: "995test"},
 						{Digest: "001b", Architecture: "999test"},
 						{Digest: "100b", Architecture: "998test"},
@@ -117,7 +117,7 @@ func TestSummarizeByHash(t *testing.T) {
 				{
 					Name:        "c",
 					LastUpdated: "2019-12-03T00:00:00.00000Z",
-					Images: []Image{
+					Images: []image{
 						{Digest: "400", Architecture: "995test"},
 						{Digest: "300", Architecture: "996test"},
 						{Digest: "001", Architecture: "999test"},
@@ -138,11 +138,11 @@ func TestSummarizeByHash(t *testing.T) {
 			},
 		},
 		"LoadUpdatedAt": {
-			tags: []ImageSummary{
+			tags: []tagSummary{
 				{
 					Name:        "a",
 					LastUpdated: "2019-12-02T00:00:00.00000Z",
-					Images: []Image{
+					Images: []image{
 						{Digest: "001", Architecture: "999test"},
 						{Digest: "100", Architecture: "998test"},
 						{Digest: "200", Architecture: "997test"},
@@ -153,7 +153,7 @@ func TestSummarizeByHash(t *testing.T) {
 				{
 					Name:        "b",
 					LastUpdated: "2019-12-01T00:00:00.00000Z",
-					Images: []Image{
+					Images: []image{
 						{Digest: "400b", Architecture: "995test"},
 						{Digest: "001b", Architecture: "999test"},
 						{Digest: "100b", Architecture: "998test"},
@@ -164,7 +164,7 @@ func TestSummarizeByHash(t *testing.T) {
 				{
 					Name:        "c",
 					LastUpdated: "2019-12-01T00:00:00.00000Z",
-					Images: []Image{
+					Images: []image{
 						{Digest: "400", Architecture: "995test"},
 						{Digest: "300", Architecture: "996test"},
 						{Digest: "001", Architecture: "999test"},
