@@ -81,3 +81,21 @@ brews:
     description: "docker container tag viewer"
     test: |
       system "#{bin}/program --version"
+
+dockers:
+  -
+    image_templates:
+      - "docker.io/goodwithtech/dockertags:{{ .Tag }}"
+      - "docker.io/goodwithtech/dockertags:latest"
+    binaries:
+      - dockertags
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.label-schema.schema-version=1.0"
+      - "--label=org.label-schema.name={{ .ProjectName }}"
+      - "--label=org.label-schema.description=Fetching and summarizing remote docker image tags"
+      - "--label=org.label-schema.vendor=Goodwith"
+      - "--label=org.label-schema.version={{ .Version }}"
+      - "--label=org.label-schema.build-date={{ .Date }}"
+      - "--label=org.label-schema.vcs=https://github.com/goodwithtech/dockertags"
+      - "--label=org.label-schema.vcs-ref={{ .FullCommit }}"
