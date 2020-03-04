@@ -89,7 +89,7 @@ dockers:
       - "docker.io/goodwithtech/dockertags:latest"
     binaries:
       - dockertags
-    dockerfile: Dockerfile.releaser
+    dockerfile: Dockerfile
     build_flag_templates:
       - "--label=org.label-schema.schema-version=1.0"
       - "--label=org.label-schema.name={{ .ProjectName }}"
