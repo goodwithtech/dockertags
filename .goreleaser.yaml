@@ -33,7 +33,7 @@ nfpms:
     maintainer: "Tomoya Amachi <tomoya.amachi@gmail.com>"
     description: "docker container tag viewer"
     license: "AGPL"
-    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    file_name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
     replacements:
       amd64: 64bit
       386: 32bit
