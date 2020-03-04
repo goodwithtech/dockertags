@@ -142,7 +142,8 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 	log.Logger.Debugf("url=%s,repository=%s", url, repository)
 	var response tagsResponse
 	if _, err := getJSON(ctx, url, auth, timeout, &response); err != nil {
-		return response, err
+		// only notice error
+		log.Logger.Errorf("invalid response at %s", url)
 	}
 
 	return response, nil

@@ -25,8 +25,14 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - run: sudo apt-get install -y rpm && curl -sL https://git.io/goreleaser | bash
-
+      - setup_remote_docker:
+          version: 18.06.0-ce
+      - run:
+          name: setup docker
+          command: docker login -u goodwithtech -p $DOCKERHUB_TOKEN
+      - run:
+          name: release
+          command: sudo apt-get install -y rpm && curl -sL https://git.io/goreleaser | bash
 
 workflows:
   version: 2
