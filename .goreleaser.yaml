@@ -22,50 +22,54 @@ builds:
     goarm:
       - 7
 
-nfpm:
-  formats:
-    - deb
-    - rpm
-  vendor: "goodwithtech"
-  homepage: "https://github.com/goodwithtech"
-  maintainer: "Tomoya Amachi <tomoya.amachi@gmail.com>"
-  description: "docker container tag viewer"
-  license: "AGPL"
-  name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
-  replacements:
-    amd64: 64bit
-    386: 32bit
-    arm: ARM
-    arm64: ARM64
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    openbsd: OpenBSD
-    netbsd: NetBSD
-    freebsd: FreeBSD
-    dragonfly: DragonFlyBSD
+nfpms:
+  -
+    id: dockertags
+    formats:
+      - deb
+      - rpm
+    vendor: "goodwithtech"
+    homepage: "https://github.com/goodwithtech"
+    maintainer: "Tomoya Amachi <tomoya.amachi@gmail.com>"
+    description: "docker container tag viewer"
+    license: "AGPL"
+    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      amd64: 64bit
+      386: 32bit
+      arm: ARM
+      arm64: ARM64
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      openbsd: OpenBSD
+      netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
 
-archive:
-  format: tar.gz
-  format_overrides:
-    - goos: windows
-      format: zip
-  name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
-  replacements:
-    amd64: 64bit
-    386: 32bit
-    arm: ARM
-    arm64: ARM64
-    darwin: macOS
-    linux: Linux
-    windows: Windows
-    openbsd: OpenBSD
-    netbsd: NetBSD
-    freebsd: FreeBSD
-    dragonfly: DragonFlyBSD
-  files:
-    - README.md
-    - LICENSE
+archives:
+  -
+    id: dockertags
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      amd64: 64bit
+      386: 32bit
+      arm: ARM
+      arm64: ARM64
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      openbsd: OpenBSD
+      netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
+    files:
+      - README.md
+      - LICENSE
 
 brews:
   -
