@@ -9,78 +9,78 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - darwin
+#      - darwin
       - linux
-      - windows
-      - freebsd
-      - openbsd
-    goarch:
-      - amd64
-      - 386
-      - arm
-      - arm64
-    goarm:
-      - 7
-
-nfpms:
-  -
-    id: dockertags
-    formats:
-      - deb
-      - rpm
-    vendor: "goodwithtech"
-    homepage: "https://github.com/goodwithtech"
-    maintainer: "Tomoya Amachi <tomoya.amachi@gmail.com>"
-    description: "docker container tag viewer"
-    license: "AGPL"
-    file_name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
-    replacements:
-      amd64: 64bit
-      386: 32bit
-      arm: ARM
-      arm64: ARM64
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      openbsd: OpenBSD
-      netbsd: NetBSD
-      freebsd: FreeBSD
-      dragonfly: DragonFlyBSD
-
-archives:
-  -
-    id: dockertags
-    format: tar.gz
-    format_overrides:
-      - goos: windows
-        format: zip
-    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
-    replacements:
-      amd64: 64bit
-      386: 32bit
-      arm: ARM
-      arm64: ARM64
-      darwin: macOS
-      linux: Linux
-      windows: Windows
-      openbsd: OpenBSD
-      netbsd: NetBSD
-      freebsd: FreeBSD
-      dragonfly: DragonFlyBSD
-    files:
-      - README.md
-      - LICENSE
-
-brews:
-  -
-    github:
-      owner: goodwithtech
-      name: homebrew-r
-    folder: Formula
-    homepage: "https://github.com/goodwithtech/dockertags"
-    description: "docker container tag viewer"
-    test: |
-      system "#{bin}/program --version"
+#      - windows
+#      - freebsd
+#      - openbsd
+#    goarch:
+#      - amd64
+#      - 386
+#      - arm
+#      - arm64
+#    goarm:
+#      - 7
+#
+#nfpms:
+#  -
+#    id: dockertags
+#    formats:
+#      - deb
+#      - rpm
+#    vendor: "goodwithtech"
+#    homepage: "https://github.com/goodwithtech"
+#    maintainer: "Tomoya Amachi <tomoya.amachi@gmail.com>"
+#    description: "docker container tag viewer"
+#    license: "AGPL"
+#    file_name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+#    replacements:
+#      amd64: 64bit
+#      386: 32bit
+#      arm: ARM
+#      arm64: ARM64
+#      darwin: Darwin
+#      linux: Linux
+#      windows: Windows
+#      openbsd: OpenBSD
+#      netbsd: NetBSD
+#      freebsd: FreeBSD
+#      dragonfly: DragonFlyBSD
+#
+#archives:
+#  -
+#    id: dockertags
+#    format: tar.gz
+#    format_overrides:
+#      - goos: windows
+#        format: zip
+#    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+#    replacements:
+#      amd64: 64bit
+#      386: 32bit
+#      arm: ARM
+#      arm64: ARM64
+#      darwin: macOS
+#      linux: Linux
+#      windows: Windows
+#      openbsd: OpenBSD
+#      netbsd: NetBSD
+#      freebsd: FreeBSD
+#      dragonfly: DragonFlyBSD
+#    files:
+#      - README.md
+#      - LICENSE
+#
+#brews:
+#  -
+#    github:
+#      owner: goodwithtech
+#      name: homebrew-r
+#    folder: Formula
+#    homepage: "https://github.com/goodwithtech/dockertags"
+#    description: "docker container tag viewer"
+#    test: |
+#      system "#{bin}/program --version"
 
 dockers:
   -
@@ -89,7 +89,7 @@ dockers:
       - "docker.io/goodwithtech/dockertags:latest"
     binaries:
       - dockertags
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.releaser
     build_flag_templates:
       - "--label=org.label-schema.schema-version=1.0"
       - "--label=org.label-schema.name={{ .ProjectName }}"
