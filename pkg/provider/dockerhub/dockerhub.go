@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
@@ -104,7 +105,6 @@ func summarizeByHash(summaries []tagSummary) map[string]types.ImageTag {
 			}
 			// set newer uploaded at
 			target.Tags = append(target.Tags, imageSummary.Name)
-			target.OsArchs = append(target.OsArchs, genOsArch(img))
 			uploadedAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
 			if uploadedAt.After(target.UploadedAt) {
 				target.UploadedAt = uploadedAt
@@ -115,31 +115,57 @@ func summarizeByHash(summaries []tagSummary) map[string]types.ImageTag {
 	return pools
 }
 
-func genOsArch(img image) string {
-	return fmt.Sprintf("%s/%s", img.Os, img.Architecture)
-}
-
 func (p *DockerHub) convertResultToTag(summaries []tagSummary) types.ImageTags {
 	// create map : key is image hash
-	pools := summarizeByHash(summaries)
-	tags := []types.ImageTag{}
-	for _, imageTag := range pools {
+	keyDigestMap := summarizeByHash(summaries)
+
+	// latestv3.3.9 => []ImageTag
+	keyTagsMap := p.summarizeByTagNames(keyDigestMap)
+
+	// []ImageTags
+	imageTags := make([]types.ImageTag, 0, len(keyTagsMap))
+	for _, digests := range keyTagsMap {
+		imageTag := types.ImageTag{}
+		for idx, digest := range digests {
+			targetImageTag := keyDigestMap[digest]
+			if idx == 0 {
+				imageTag = targetImageTag
+				continue
+			}
+			imageTag.Data = append(imageTag.Data, targetImageTag.Data[0])
+		}
+		imageTags = append(imageTags, imageTag)
+	}
+	return imageTags
+}
+
+func (p *DockerHub) summarizeByTagNames(keyDigestMap map[string]types.ImageTag) map[string][]string {
+	keyTagsMap := map[string][]string{}
+	for digest, imageTag := range keyDigestMap {
 		if !utils.MatchConditionTags(p.filterOpt, imageTag.Tags) {
 			continue
 		}
-		tags = append(tags, imageTag)
+		key := strings.Join(imageTag.Tags, "")
+		digests, ok := keyTagsMap[key]
+		if !ok {
+			keyTagsMap[key] = []string{digest}
+		}
+		keyTagsMap[key] = append(digests, digest)
 	}
-	return tags
+	return keyTagsMap
 }
 
 func convertUploadImageTag(is tagSummary, img image) types.ImageTag {
 	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
 	return types.ImageTag{
-		Tags:       tagNames,
-		Byte:       is.FullSize,
-		Hash:       img.Digest,
-		OsArchs:    []string{genOsArch(img)},
+		Tags: tagNames,
+		Data: []types.TagAttr{{
+			Os:     img.Os,
+			Arch:   img.Architecture,
+			Digest: img.Digest,
+			Byte:   img.Size,
+		}},
 		UploadedAt: uploadedAt,
 	}
 }

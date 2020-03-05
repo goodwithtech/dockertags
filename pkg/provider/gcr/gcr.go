@@ -76,9 +76,11 @@ func (p *GCR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 			return nil, err
 		}
 		imageTags = append(imageTags, types.ImageTag{
-			Tags:       detail.Tag,
-			Byte:       getIntByte(detail.ImageSizeBytes),
-			Hash:       hash,
+			Tags: detail.Tag,
+			Data: []types.TagAttr{{
+				Byte:   getIntByte(detail.ImageSizeBytes),
+				Digest: hash,
+			}},
 			CreatedAt:  createdAt,
 			UploadedAt: uploadedAt,
 		})

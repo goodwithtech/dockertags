@@ -27,11 +27,17 @@ type FilterOption struct {
 // ImageTag : tag information
 type ImageTag struct {
 	Tags       []string  `json:"tags"`
-	Hash       string    `json:"hash"`
-	OsArchs    []string  `json:"os/archs"`
-	Byte       int       `json:"byte"`
+	Data       []TagAttr `json:"data"`
 	CreatedAt  time.Time `json:"created_at"`
 	UploadedAt time.Time `json:"uploaded_at"`
+}
+
+// TagAttr is each unique tag information
+type TagAttr struct {
+	Os     string
+	Arch   string
+	Digest string
+	Byte   int `json:"byte"`
 }
 
 // ImageTags : tag information slice
@@ -44,9 +50,15 @@ func (t ImageTags) Less(i, j int) bool {
 	if !t[i].UploadedAt.IsZero() && !t[j].UploadedAt.IsZero() {
 		return (t[i].UploadedAt).After((t[j].UploadedAt))
 	}
-
 	if !t[i].CreatedAt.IsZero() && !t[j].CreatedAt.IsZero() {
 		return (t[i].CreatedAt).After((t[j].CreatedAt))
 	}
 	return true
 }
+
+// TagAttrs is each unique tag information
+type TagAttrs []TagAttr
+
+func (t TagAttrs) Len() int           { return len(t) }
+func (t TagAttrs) Less(i, j int) bool { return t[i].Digest < t[j].Digest }
+func (t TagAttrs) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }

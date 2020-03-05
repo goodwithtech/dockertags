@@ -1,6 +1,7 @@
 package report
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -21,18 +22,25 @@ type TableWriter struct {
 // Write is
 func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Tag", "Size", "Hash", "OS/ARCH", "Created At", "Uploaded At"})
+	table.SetHeader([]string{"Tag", "Size", "Digest", "OS/ARCH", "Created At", "Uploaded At"})
 
-	for _, tag := range tags {
+	for idx, tag := range tags {
+		fmt.Println(idx, "-", tag.Tags)
 		targets := utils.StrByLen(tag.Tags)
 		sort.Sort(targets)
 
+		var sizes, digests, osArchs []string
+		for _, datum := range tag.Data {
+			sizes = append(sizes, getBytesize(datum.Byte))
+			digests = append(digests, datum.Digest)
+			osArchs = append(osArchs, fmt.Sprintf("%s/%s", datum.Os, datum.Arch))
+		}
 		// filled with whitespace
 		table.Append([]string{
 			strings.Join(fillWithSpaces(targets), tablewriter.NEWLINE),
-			getBytesize(tag.Byte),
-			trimHash(tag.Hash),
-			strings.Join(fillWithSpaces(tag.OsArchs), tablewriter.NEWLINE),
+			strings.Join(fillWithSpaces(sizes), tablewriter.NEWLINE),
+			strings.Join(fillWithSpaces(digests), tablewriter.NEWLINE),
+			strings.Join(fillWithSpaces(osArchs), tablewriter.NEWLINE),
 			ttos(tag.CreatedAt),
 			ttos(tag.UploadedAt),
 		})
@@ -43,9 +51,9 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	return nil
 }
 
-func fillWithSpaces(tagNames []string) []string {
+func fillWithSpaces(labels []string) []string {
 	fillWithSpaces := []string{}
-	for _, tag := range tagNames {
+	for _, tag := range labels {
 		tagStr := tag
 		whitespaceCnt := tablewriter.MAX_ROW_WIDTH - len(tag)
 		if whitespaceCnt > 0 {
