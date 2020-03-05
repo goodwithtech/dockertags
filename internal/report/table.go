@@ -24,8 +24,7 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Tag", "Size", "Digest", "OS/ARCH", "Created At", "Uploaded At"})
 
-	for idx, tag := range tags {
-		fmt.Println(idx, "-", tag.Tags)
+	for _, tag := range tags {
 		targets := utils.StrByLen(tag.Tags)
 		sort.Sort(targets)
 
