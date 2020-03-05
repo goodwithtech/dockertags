@@ -44,8 +44,6 @@ nfpms:
       windows: Windows
       openbsd: OpenBSD
       netbsd: NetBSD
-      freebsd: FreeBSD
-      dragonfly: DragonFlyBSD
 
 archives:
   -
@@ -65,8 +63,6 @@ archives:
       windows: Windows
       openbsd: OpenBSD
       netbsd: NetBSD
-      freebsd: FreeBSD
-      dragonfly: DragonFlyBSD
     files:
       - README.md
       - LICENSE
