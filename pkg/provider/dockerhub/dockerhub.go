@@ -158,15 +158,21 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 }
 
 func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
-	return totalCnt/types.ImagePerPage + 1
-	// TODO : currently always fetch all pages for show alias
-	// maxPage := totalCnt/types.ImagePerPage + 1
-	// if needCnt == 0 || len(option.Contain) != 0 {
-	// 	return maxPage
-	// }
-	// needPage := needCnt/types.ImagePerPage + 1
-	// if needPage >= maxPage {
-	// 	return maxPage
-	// }
-	// return needPage
+	//return totalCnt/types.ImagePerPage + 1
+	maxPage := totalCnt / types.ImagePerPage
+	if totalCnt%types.ImagePerPage != 0 {
+		maxPage++
+	}
+	if needCnt == 0 || len(option.Contain) != 0 {
+		return maxPage
+	}
+
+	needPage := needCnt / types.ImagePerPage
+	if needCnt%types.ImagePerPage != 0 {
+		needCnt++
+	}
+	if needPage >= maxPage {
+		return maxPage
+	}
+	return needPage
 }
