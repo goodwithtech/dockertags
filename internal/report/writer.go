@@ -8,11 +8,11 @@ type Writer interface {
 }
 
 func trimHash(long string) string {
-	if len(long) < 18 {
+	if len(long) < 20 {
 		return long
 	}
 	if long[0:6] == "sha256" {
-		return long[7:16]
+		return long[7:19]
 	}
 	return long
 }

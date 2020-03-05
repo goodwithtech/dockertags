@@ -32,8 +32,10 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 		var sizes, digests, osArchs []string
 		for _, datum := range tag.Data {
 			sizes = append(sizes, getBytesize(datum.Byte))
-			digests = append(digests, datum.Digest)
-			osArchs = append(osArchs, fmt.Sprintf("%s/%s", datum.Os, datum.Arch))
+			digests = append(digests, trimHash(datum.Digest))
+			if datum.Os != "" {
+				osArchs = append(osArchs, fmt.Sprintf("%s/%s", datum.Os, datum.Arch))
+			}
 		}
 		// filled with whitespace
 		table.Append([]string{
