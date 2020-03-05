@@ -41,6 +41,7 @@ OPTIONS:
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
 			Name:  "limit, l",
+			Value: 10,
 			Usage: "set max tags count. if exist no tag image will be short numbers. limit=0 means fetch all tags",
 		},
 		cli.StringSliceFlag{

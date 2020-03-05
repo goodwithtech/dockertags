@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
@@ -44,11 +45,11 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 		return nil, err
 	}
 
-	// create all in one []ImageSummary
+	// create all in one []tagSummary
 	totalTagSummary := tagResp.Results
 	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
 	// create ch (page - 1), already fetched first page,
-	tagsPerPage := make(chan []ImageSummary, lastPage-1)
+	tagsPerPage := make(chan []tagSummary, lastPage-1)
 	if err = p.controlGetTags(ctx, tagsPerPage, repository, 2, lastPage); err != nil {
 		return nil, err
 	}
@@ -63,7 +64,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 }
 
 // rate limit for socket: too many open files
-func (p *DockerHub) controlGetTags(ctx context.Context, tagsPerPage chan []ImageSummary, repository string, from, to int) error {
+func (p *DockerHub) controlGetTags(ctx context.Context, tagsPerPage chan []tagSummary, repository string, from, to int) error {
 	slots := make(chan struct{}, rateLimit)
 	eg := errgroup.Group{}
 	for page := from; page <= to; page++ {
@@ -82,7 +83,7 @@ func (p *DockerHub) controlGetTags(ctx context.Context, tagsPerPage chan []Image
 	return eg.Wait()
 }
 
-func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
+func summarizeByHash(summaries []tagSummary) map[string]types.ImageTag {
 	pools := map[string]types.ImageTag{}
 	for _, imageSummary := range summaries {
 		if imageSummary.Name == "" {
@@ -94,43 +95,77 @@ func summarizeByHash(summaries []ImageSummary) map[string]types.ImageTag {
 			continue
 		}
 		sort.Sort(imageSummary.Images)
-		firstHash := imageSummary.Images[0].Digest
-		target, ok := pools[firstHash]
-		// create first hash key if not exist
-		if !ok {
-			pools[firstHash] = convertUploadImageTag(imageSummary)
-			continue
+		for _, img := range imageSummary.Images {
+			hash := img.Digest
+			target, ok := pools[hash]
+			// create first hash key if not exist
+			if !ok {
+				pools[hash] = convertUploadImageTag(imageSummary, img)
+				continue
+			}
+			// set newer uploaded at
+			target.Tags = append(target.Tags, imageSummary.Name)
+			uploadedAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
+			if uploadedAt.After(target.UploadedAt) {
+				target.UploadedAt = uploadedAt
+			}
+			pools[hash] = target
 		}
-		// set newer uploaded at
-		target.Tags = append(target.Tags, imageSummary.Name)
-		uploadedAt, _ := time.Parse(time.RFC3339Nano, imageSummary.LastUpdated)
-		if uploadedAt.After(target.UploadedAt) {
-			target.UploadedAt = uploadedAt
-		}
-		pools[firstHash] = target
 	}
 	return pools
 }
 
-func (p *DockerHub) convertResultToTag(summaries []ImageSummary) types.ImageTags {
+func (p *DockerHub) convertResultToTag(summaries []tagSummary) types.ImageTags {
 	// create map : key is image hash
-	pools := summarizeByHash(summaries)
-	tags := []types.ImageTag{}
-	for _, imageTag := range pools {
+	keyDigestMap := summarizeByHash(summaries)
+
+	// latestv3.3.9 => []ImageTag
+	keyTagsMap := p.summarizeByTagNames(keyDigestMap)
+
+	// []ImageTags
+	imageTags := make([]types.ImageTag, 0, len(keyTagsMap))
+	for _, digests := range keyTagsMap {
+		imageTag := types.ImageTag{}
+		for idx, digest := range digests {
+			targetImageTag := keyDigestMap[digest]
+			if idx == 0 {
+				imageTag = targetImageTag
+				continue
+			}
+			imageTag.Data = append(imageTag.Data, targetImageTag.Data[0])
+		}
+		imageTags = append(imageTags, imageTag)
+	}
+	return imageTags
+}
+
+func (p *DockerHub) summarizeByTagNames(keyDigestMap map[string]types.ImageTag) map[string][]string {
+	keyTagsMap := map[string][]string{}
+	for digest, imageTag := range keyDigestMap {
 		if !utils.MatchConditionTags(p.filterOpt, imageTag.Tags) {
 			continue
 		}
-		tags = append(tags, imageTag)
+		key := strings.Join(imageTag.Tags, "")
+		digests, ok := keyTagsMap[key]
+		if !ok {
+			keyTagsMap[key] = []string{digest}
+		}
+		keyTagsMap[key] = append(digests, digest)
 	}
-	return tags
+	return keyTagsMap
 }
 
-func convertUploadImageTag(is ImageSummary) types.ImageTag {
+func convertUploadImageTag(is tagSummary, img image) types.ImageTag {
 	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
 	return types.ImageTag{
-		Tags:       tagNames,
-		Byte:       is.FullSize,
+		Tags: tagNames,
+		Data: []types.TagAttr{{
+			Os:     img.Os,
+			Arch:   img.Architecture,
+			Digest: img.Digest,
+			Byte:   img.Size,
+		}},
 		UploadedAt: uploadedAt,
 	}
 }
@@ -150,15 +185,21 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 }
 
 func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
-	return totalCnt/types.ImagePerPage + 1
-	// TODO : currently always fetch all pages for show alias
-	// maxPage := totalCnt/types.ImagePerPage + 1
-	// if needCnt == 0 || len(option.Contain) != 0 {
-	// 	return maxPage
-	// }
-	// needPage := needCnt/types.ImagePerPage + 1
-	// if needPage >= maxPage {
-	// 	return maxPage
-	// }
-	// return needPage
+	//return totalCnt/types.ImagePerPage + 1
+	maxPage := totalCnt / types.ImagePerPage
+	if totalCnt%types.ImagePerPage != 0 {
+		maxPage++
+	}
+	if needCnt == 0 || len(option.Contain) != 0 {
+		return maxPage
+	}
+
+	needPage := needCnt / types.ImagePerPage
+	if needCnt%types.ImagePerPage != 0 {
+		needCnt++
+	}
+	if needPage >= maxPage {
+		return maxPage
+	}
+	return needPage
 }

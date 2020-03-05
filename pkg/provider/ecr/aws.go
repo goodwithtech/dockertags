@@ -82,9 +82,13 @@ func (p *ECR) Run(ctx context.Context, domain, repository string, reqOpt *types.
 		if detail.ImagePushedAt != nil {
 			pushedAt = *detail.ImagePushedAt
 		}
+
 		imageTags = append(imageTags, types.ImageTag{
-			Tags:       tags,
-			Byte:       getIntByte(detail.ImageSizeInBytes),
+			Tags: tags,
+			Data: []types.TagAttr{{
+				Byte:   getIntByte(detail.ImageSizeInBytes),
+				Digest: *detail.ImageDigest,
+			}},
 			UploadedAt: pushedAt,
 		})
 	}
