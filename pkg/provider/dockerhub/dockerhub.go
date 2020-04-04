@@ -158,16 +158,25 @@ func (p *DockerHub) summarizeByTagNames(keyDigestMap map[string]types.ImageTag) 
 func convertUploadImageTag(is tagSummary, img image) types.ImageTag {
 	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
+	archName := concatWithSlash(img.Architecture, img.Features)
+	archName = concatWithSlash(img.Architecture, img.Variant)
 	return types.ImageTag{
 		Tags: tagNames,
 		Data: []types.TagAttr{{
 			Os:     img.Os,
-			Arch:   img.Architecture,
+			Arch:   archName,
 			Digest: img.Digest,
 			Byte:   img.Size,
 		}},
 		UploadedAt: uploadedAt,
 	}
+}
+
+func concatWithSlash(original, adding string) string {
+	if adding == "" {
+		return original
+	}
+	return original + "/" + adding
 }
 
 // getTagResponse returns the tags for a specific repository.

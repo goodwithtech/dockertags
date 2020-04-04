@@ -58,7 +58,8 @@ func Run(c *cli.Context) (err error) {
 	case "json":
 		writer = &report.JSONWriter{Output: output}
 	default:
-		writer = &report.TableWriter{Output: output}
+		longDigests := c.Bool("digests")
+		writer = &report.TableWriter{Output: output, LongDigests: longDigests}
 	}
 
 	var showTags types.ImageTags

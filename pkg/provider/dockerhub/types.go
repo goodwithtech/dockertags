@@ -26,6 +26,8 @@ type image struct {
 	Digest       string `json:"digest"`
 	Os           string `json:"os"`
 	Architecture string `json:"architecture"`
+	Features     string `json:"features"`
+	Variant      string `json:"variant"`
 	Size         int    `json:"size"`
 }
 

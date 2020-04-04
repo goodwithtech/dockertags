@@ -35,7 +35,6 @@ OPTIONS:
 	app.Name = "dockertags"
 	app.Version = version
 	app.ArgsUsage = "image_name"
-
 	app.Usage = "fetch docker image tags"
 
 	app.Flags = []cli.Flag{
@@ -73,6 +72,10 @@ OPTIONS:
 		cli.StringFlag{
 			Name:  "password, p",
 			Usage: "Using -password via CLI is insecure. Be careful.",
+		},
+		cli.BoolFlag{
+			Name:  "digests",
+			Usage: "Show long digests",
 		},
 		cli.BoolFlag{
 			Name:  "debug, d",

@@ -16,7 +16,8 @@ import (
 
 // TableWriter output table format
 type TableWriter struct {
-	Output io.Writer
+	Output      io.Writer
+	LongDigests bool
 }
 
 // Write is
@@ -31,7 +32,11 @@ func (w TableWriter) Write(tags types.ImageTags) (err error) {
 		var sizes, digests, osArchs []string
 		for _, datum := range tag.Data {
 			sizes = append(sizes, getBytesize(datum.Byte))
-			digests = append(digests, trimHash(datum.Digest))
+			digest := datum.Digest
+			if !w.LongDigests {
+				digest = trimHash(datum.Digest)
+			}
+			digests = append(digests, digest)
 			if datum.Os != "" {
 				osArchs = append(osArchs, fmt.Sprintf("%s/%s", datum.Os, datum.Arch))
 			}
