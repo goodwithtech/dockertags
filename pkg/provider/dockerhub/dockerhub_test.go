@@ -34,7 +34,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:8c279d26352cbb75f7afdfdbbd8fa1503d70c21e29ed697a315f28024cea60e7",
 							Byte:   25710653,
 						},
@@ -52,13 +52,13 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:7c1890a916f5a4572c5941eed2952fe518f0f962ee8b51883a80fa99c3521074",
 							Byte:   26670752,
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v7",
 							Digest: "sha256:b5c3b48ea6ae08ffbabac80e1ee017d551368e9ae028493257d37984b9131f4b",
 							Byte:   23567986,
 						},
@@ -93,19 +93,19 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:74606051b9104909274b3aa01714484c8b149d8e77a4abde33e6db34d19761ac",
 							Byte:   49263130,
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v7",
 							Digest: "sha256:6d73fad4b05882d055376f98e5453b599ec6a20de1d1ac938420802ada9d8130",
 							Byte:   47015922,
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:cf0a802cc88f3596bc16ee702d9a790683e50d71e36c7391e35af637660a28e5",
 							Byte:   50259191,
 						},
@@ -122,7 +122,7 @@ func TestScanImage(t *testing.T) {
 					Data: []types.TagAttr{
 						{
 							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:50fdf0820936f2da4f3810565dc4c202e39190ea4aed93c015e9f5515d3bcf18",
 							Byte:   26662818,
 						},
@@ -140,7 +140,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v7",
 							Digest: "sha256:e8f91639723e09cd06b67d7350941d9259bba797c8e6369391baa72140626b01",
 							Byte:   23562693,
 						},
@@ -158,7 +158,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:883f0ddfeb966293073cc11214ceb3e50d6468f4c4fcaae1bdd00c1fca1907b5",
 							Byte:   25708037,
 						},
@@ -169,7 +169,7 @@ func TestScanImage(t *testing.T) {
 					Data: []types.TagAttr{
 						{
 							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:2402d0314bf3027a1d1e6a8c94778224c463f5b5f6f24ba2ceb271ae6bee87a1",
 							Byte:   50254334,
 						},
@@ -187,7 +187,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v7",
 							Digest: "sha256:e7808905c7c28f8855f71ecb8851e08d74755df26d62454642e2a404a3d4b9e5",
 							Byte:   47005040,
 						},
@@ -205,7 +205,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:7c44df1bb8db120b456e8057ba0041dbdf0b78f8c2e66fb486721ddee789561c",
 							Byte:   49268237,
 						},
@@ -228,19 +228,19 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v7",
 							Digest: "sha256:49621f8580714781d422f6d3dbb1bcbdf1e8be44ad7cfef76ad5f8327ed8e332",
 							Byte:   47004816,
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:dc428d7fb5c8a96b65ab272b0a7e5f1c47aa89cc3f1ba55a7513be8b62498259",
 							Byte:   50254108,
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:5e994cd9d64ce17b03708525141f7911dc2b05646247009c652b6800a71da7ad",
 							Byte:   49268013,
 						},
@@ -263,7 +263,7 @@ func TestScanImage(t *testing.T) {
 					Data: []types.TagAttr{
 						{
 							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:2e24d88457527d82b1cab0a9327eab35de3e1902691a346bc474af36462df043",
 							Byte:   20385759,
 						},
@@ -275,7 +275,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:14bfaabb2f662fd51c251b6d27671ee78f022b9f5c0cf9bb63a0b849cd5faea8",
 							Byte:   21202864,
 						},
@@ -293,7 +293,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v7",
 							Digest: "sha256:37a60ef0aad40394224a94aaec8ea65edceb52cb8bc44c069cf931b656d94a66",
 							Byte:   19311578,
 						},
@@ -316,15 +316,15 @@ func TestScanImage(t *testing.T) {
 					Data: []types.TagAttr{
 						{
 							Os:     "linux",
-							Arch:   "amd64",
-							Digest: "sha256:06dcd5bd1693f192a0a0b5d8451c43e8b294931fbdd4077f258ff900dd788a93",
-							Byte:   27770486,
-						},
-						{
-							Os:     "linux",
 							Arch:   "ppc64le",
 							Digest: "sha256:af6a41a4147be448b99befff0216877a5f982caa7b94b17689ddf783dfdb13fb",
 							Byte:   31299332,
+						},
+						{
+							Os:     "linux",
+							Arch:   "arm/v5",
+							Digest: "sha256:8c279d26352cbb75f7afdfdbbd8fa1503d70c21e29ed697a315f28024cea60e7",
+							Byte:   25710653,
 						},
 						{
 							Os:     "linux",
@@ -334,27 +334,27 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "arm",
-							Digest: "sha256:8c279d26352cbb75f7afdfdbbd8fa1503d70c21e29ed697a315f28024cea60e7",
-							Byte:   25710653,
+							Arch:   "amd64",
+							Digest: "sha256:06dcd5bd1693f192a0a0b5d8451c43e8b294931fbdd4077f258ff900dd788a93",
+							Byte:   27770486,
+						},
+						{
+							Os:     "linux",
+							Arch:   "arm64/v8",
+							Digest: "sha256:7c1890a916f5a4572c5941eed2952fe518f0f962ee8b51883a80fa99c3521074",
+							Byte:   26670752,
+						},
+						{
+							Os:     "linux",
+							Arch:   "arm/v7",
+							Digest: "sha256:b5c3b48ea6ae08ffbabac80e1ee017d551368e9ae028493257d37984b9131f4b",
+							Byte:   23567986,
 						},
 						{
 							Os:     "linux",
 							Arch:   "s390x",
 							Digest: "sha256:4398583092b4bff413cb67471d2703eaead5f9e2405dbf80c4f515d7a1eb24fb",
 							Byte:   26457563,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm64",
-							Digest: "sha256:7c1890a916f5a4572c5941eed2952fe518f0f962ee8b51883a80fa99c3521074",
-							Byte:   26670752,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm",
-							Digest: "sha256:b5c3b48ea6ae08ffbabac80e1ee017d551368e9ae028493257d37984b9131f4b",
-							Byte:   23567986,
 						},
 					},
 				},
@@ -363,9 +363,9 @@ func TestScanImage(t *testing.T) {
 					Data: []types.TagAttr{
 						{
 							Os:     "linux",
-							Arch:   "arm",
-							Digest: "sha256:e8f91639723e09cd06b67d7350941d9259bba797c8e6369391baa72140626b01",
-							Byte:   23562693,
+							Arch:   "arm64/v8",
+							Digest: "sha256:50fdf0820936f2da4f3810565dc4c202e39190ea4aed93c015e9f5515d3bcf18",
+							Byte:   26662818,
 						},
 						{
 							Os:     "linux",
@@ -381,27 +381,27 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "386",
-							Digest: "sha256:a3ed7808f955565ce8306d12457b55142d00082322f200929106df0a47be6a24",
-							Byte:   28735414,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm",
-							Digest: "sha256:883f0ddfeb966293073cc11214ceb3e50d6468f4c4fcaae1bdd00c1fca1907b5",
-							Byte:   25708037,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm64",
-							Digest: "sha256:50fdf0820936f2da4f3810565dc4c202e39190ea4aed93c015e9f5515d3bcf18",
-							Byte:   26662818,
+							Arch:   "arm/v7",
+							Digest: "sha256:e8f91639723e09cd06b67d7350941d9259bba797c8e6369391baa72140626b01",
+							Byte:   23562693,
 						},
 						{
 							Os:     "linux",
 							Arch:   "amd64",
 							Digest: "sha256:9493179cd3d54f466c8819a2a1bfec74f02571d4466c53b0f3a7d0d8f93c8193",
 							Byte:   27764368,
+						},
+						{
+							Os:     "linux",
+							Arch:   "386",
+							Digest: "sha256:a3ed7808f955565ce8306d12457b55142d00082322f200929106df0a47be6a24",
+							Byte:   28735414,
+						},
+						{
+							Os:     "linux",
+							Arch:   "arm/v5",
+							Digest: "sha256:883f0ddfeb966293073cc11214ceb3e50d6468f4c4fcaae1bdd00c1fca1907b5",
+							Byte:   25708037,
 						},
 					},
 				},
@@ -410,13 +410,7 @@ func TestScanImage(t *testing.T) {
 					Data: []types.TagAttr{
 						{
 							Os:     "linux",
-							Arch:   "amd64",
-							Digest: "sha256:df522a8ee081e81521d499440e2620dd39ee75434940e4890b0424d83f6332c2",
-							Byte:   22524572,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm64",
+							Arch:   "arm64/v8",
 							Digest: "sha256:2e24d88457527d82b1cab0a9327eab35de3e1902691a346bc474af36462df043",
 							Byte:   20385759,
 						},
@@ -428,19 +422,7 @@ func TestScanImage(t *testing.T) {
 						},
 						{
 							Os:     "linux",
-							Arch:   "s390x",
-							Digest: "sha256:bef911ad7b423dcaa98615040e63ee750f8b78d97587e60b48d4a22b12e06f08",
-							Byte:   22380089,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm",
-							Digest: "sha256:37a60ef0aad40394224a94aaec8ea65edceb52cb8bc44c069cf931b656d94a66",
-							Byte:   19311578,
-						},
-						{
-							Os:     "linux",
-							Arch:   "arm",
+							Arch:   "arm/v5",
 							Digest: "sha256:14bfaabb2f662fd51c251b6d27671ee78f022b9f5c0cf9bb63a0b849cd5faea8",
 							Byte:   21202864,
 						},
@@ -449,6 +431,24 @@ func TestScanImage(t *testing.T) {
 							Arch:   "386",
 							Digest: "sha256:e5763d6be644027e414d06907e214ed5aa3899ab7ac1a9d10427347eab587353",
 							Byte:   23152070,
+						},
+						{
+							Os:     "linux",
+							Arch:   "s390x",
+							Digest: "sha256:bef911ad7b423dcaa98615040e63ee750f8b78d97587e60b48d4a22b12e06f08",
+							Byte:   22380089,
+						},
+						{
+							Os:     "linux",
+							Arch:   "arm/v7",
+							Digest: "sha256:37a60ef0aad40394224a94aaec8ea65edceb52cb8bc44c069cf931b656d94a66",
+							Byte:   19311578,
+						},
+						{
+							Os:     "linux",
+							Arch:   "amd64",
+							Digest: "sha256:df522a8ee081e81521d499440e2620dd39ee75434940e4890b0424d83f6332c2",
+							Byte:   22524572,
 						},
 					},
 				},
