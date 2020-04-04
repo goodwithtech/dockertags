@@ -159,7 +159,7 @@ func convertUploadImageTag(is tagSummary, img image) types.ImageTag {
 	uploadedAt, _ := time.Parse(time.RFC3339Nano, is.LastUpdated)
 	tagNames := []string{is.Name}
 	archName := concatWithSlash(img.Architecture, img.Features)
-	archName = concatWithSlash(img.Architecture, img.Variant)
+	archName = concatWithSlash(archName, img.Variant)
 	return types.ImageTag{
 		Tags: tagNames,
 		Data: []types.TagAttr{{
