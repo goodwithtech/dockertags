@@ -3,10 +3,6 @@
 Show information of container images ordered by recently updated. <br />
 Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elastic Container Registry).
 
-<img src="assets/usage.gif" width="1200" />
-
-
-
 ## Quick Start
 
 ```bash
