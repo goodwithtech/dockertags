@@ -709,7 +709,7 @@ func TestCalcMaxRequestPage(t *testing.T) {
 			totalCnt: 10,
 			needCnt:  100,
 			needPage: 1,
-			isMax:    false,
+			isMax:    true,
 		},
 		{
 			totalCnt: 11,
