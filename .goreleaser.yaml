@@ -83,7 +83,7 @@ dockers:
   - image_templates:
       - 'goodwithtech/dockertags:{{ .Tag }}-amd64'
       - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-amd64'
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.releaser
     build_flag_templates:
       - "--pull"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -95,7 +95,7 @@ dockers:
   - image_templates:
       - 'goodwithtech/dockertags:{{ .Tag }}-arm64'
       - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-arm64'
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.releaser
     build_flag_templates:
       - "--pull"
       - "--label=org.opencontainers.image.created={{.Date}}"
