@@ -12,7 +12,6 @@ builds:
       - darwin
       - linux
       - windows
-      - openbsd
     goarch:
       - amd64
       - 386
@@ -23,14 +22,14 @@ builds:
 
 nfpms:
   -
-    id: dockertags
     formats:
+      - apk
       - deb
       - rpm
     vendor: "goodwithtech"
     homepage: "https://github.com/goodwithtech"
     maintainer: "Tomoya Amachi <tomoya.amachi@gmail.com>"
-    description: "docker container tag viewer"
+    description: "a CLI tool for fetching container image tags"
     license: "AGPL"
     file_name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
     replacements:
@@ -38,15 +37,16 @@ nfpms:
       386: 32bit
       arm: ARM
       arm64: ARM64
-      darwin: Darwin
+      darwin: macOS
       linux: Linux
       windows: Windows
       openbsd: OpenBSD
       netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
 
 archives:
   -
-    id: dockertags
     format: tar.gz
     format_overrides:
       - goos: windows
@@ -62,35 +62,63 @@ archives:
       windows: Windows
       openbsd: OpenBSD
       netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
     files:
       - README.md
       - LICENSE
 
 brews:
   -
-    github:
+    tap:
       owner: goodwithtech
       name: homebrew-r
     folder: Formula
     homepage: "https://github.com/goodwithtech/dockertags"
-    description: "docker container tag viewer"
+    description: "a CLI tool for fetching container image tags."
     test: |
       system "#{bin}/program --version"
 
 dockers:
-  -
-    image_templates:
-      - "docker.io/goodwithtech/dockertags:{{ .Tag }}"
-      - "docker.io/goodwithtech/dockertags:latest"
-    binaries:
-      - dockertags
+  - image_templates:
+      - 'goodwithtech/dockertags:{{ .Tag }}-amd64'
+      - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-amd64'
     dockerfile: Dockerfile
     build_flag_templates:
-      - "--label=org.label-schema.schema-version=1.0"
-      - "--label=org.label-schema.name={{ .ProjectName }}"
-      - "--label=org.label-schema.description=Fetching and summarizing remote docker image tags"
-      - "--label=org.label-schema.vendor=Goodwith"
-      - "--label=org.label-schema.version={{ .Version }}"
-      - "--label=org.label-schema.build-date={{ .Date }}"
-      - "--label=org.label-schema.vcs=https://github.com/goodwithtech/dockertags"
-      - "--label=org.label-schema.vcs-ref={{ .FullCommit }}"
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - 'goodwithtech/dockertags:{{ .Tag }}-arm64'
+      - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-arm64'
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+    goarch: arm64
+docker_manifests:
+  - name_template: 'goodwithtech/dockertags:{{ .Tag }}'
+    image_templates:
+      - 'goodwithtech/dockertags:{{ .Tag }}-amd64'
+      - 'goodwithtech/dockertags:{{ .Tag }}-arm64'
+  - name_template: 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}'
+    image_templates:
+      - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-amd64'
+      - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-arm64'
+  - name_template: 'goodwithtech/dockertags:latest'
+    image_templates:
+      - 'goodwithtech/dockertags:{{ .Tag }}-amd64'
+      - 'goodwithtech/dockertags:{{ .Tag }}-arm64'
+  - name_template: 'ghcr.io/goodwithtech/dockertags:latest'
+    image_templates:
+      - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-amd64'
+      - 'ghcr.io/goodwithtech/dockertags:{{ .Tag }}-arm64'

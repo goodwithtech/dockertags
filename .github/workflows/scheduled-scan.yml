@@ -1,7 +1,7 @@
 name: Scan the target image with trivy
 on:
   schedule:
-      - cron:  '0 0 * * *'
+      - cron:  '0 0 1 1 *'
 jobs:
   scan:
     name: Scan via trivy
