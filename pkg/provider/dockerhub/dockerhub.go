@@ -47,19 +47,25 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 
 	// create all in one []tagSummary
 	totalTagSummary := tagResp.Results
-	lastPage := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
-	// create ch (page - 1), already fetched first page,
-	tagsPerPage := make(chan []tagSummary, lastPage-1)
-	if err = p.controlGetTags(ctx, tagsPerPage, repository, 2, lastPage); err != nil {
-		return nil, err
+	lastPage, isMax := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
+	if !isMax {
+		log.Logger.Infof("Dockertags liints the requests. Use --limit=0 flag if you want to fetch all tags.")
 	}
-	for page := 2; page <= lastPage; page++ {
-		select {
-		case tags := <-tagsPerPage:
-			totalTagSummary = append(totalTagSummary, tags...)
+	// 1st page already requested
+	if lastPage > 1 {
+		// create ch (page - 1), already fetched first page,
+		tagsPerPage := make(chan []tagSummary, lastPage-1)
+		if err = p.controlGetTags(ctx, tagsPerPage, repository, 2, lastPage); err != nil {
+			return nil, err
 		}
+		for page := 2; page <= lastPage; page++ {
+			select {
+			case tags := <-tagsPerPage:
+				totalTagSummary = append(totalTagSummary, tags...)
+			}
+		}
+		close(tagsPerPage)
 	}
-	close(tagsPerPage)
 	return p.convertResultToTag(totalTagSummary), nil
 }
 
@@ -193,22 +199,22 @@ func getTagResponse(ctx context.Context, auth dockertypes.AuthConfig, timeout ti
 	return response, nil
 }
 
-func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) int {
+func calcMaxRequestPage(totalCnt, needCnt int, option *types.FilterOption) (needPage int, isMax bool) {
 	//return totalCnt/types.ImagePerPage + 1
 	maxPage := totalCnt / types.ImagePerPage
 	if totalCnt%types.ImagePerPage != 0 {
 		maxPage++
 	}
 	if needCnt == 0 || len(option.Contain) != 0 {
-		return maxPage
+		return maxPage, true
 	}
 
-	needPage := needCnt / types.ImagePerPage
+	needPage = needCnt / types.ImagePerPage
 	if needCnt%types.ImagePerPage != 0 {
-		needCnt++
+		needPage++
 	}
 	if needPage >= maxPage {
-		return maxPage
+		return maxPage, true
 	}
-	return needPage
+	return needPage, false
 }

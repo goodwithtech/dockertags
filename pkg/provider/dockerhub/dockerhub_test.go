@@ -678,3 +678,102 @@ func TestSummarizeByHash(t *testing.T) {
 		}
 	}
 }
+
+func TestCalcMaxRequestPage(t *testing.T) {
+	testcases := []struct {
+		totalCnt int
+		needCnt  int
+		option   types.FilterOption
+		needPage int
+		isMax    bool
+	}{
+		{
+			totalCnt: 10,
+			needCnt:  1,
+			needPage: 1,
+			isMax:    true,
+		},
+		{
+			totalCnt: 11,
+			needCnt:  1,
+			needPage: 1,
+			isMax:    false,
+		},
+		{
+			totalCnt: 21,
+			needCnt:  1,
+			needPage: 1,
+			isMax:    false,
+		},
+		{
+			totalCnt: 10,
+			needCnt:  100,
+			needPage: 1,
+			isMax:    false,
+		},
+		{
+			totalCnt: 11,
+			needCnt:  100,
+			needPage: 2,
+			isMax:    true,
+		},
+		{
+			totalCnt: 21,
+			needCnt:  100,
+			needPage: 3,
+			isMax:    true,
+		},
+		{
+			totalCnt: 10,
+			needCnt:  0,
+			needPage: 1,
+			isMax:    true,
+		},
+		{
+			totalCnt: 11,
+			needCnt:  0,
+			needPage: 2,
+			isMax:    true,
+		},
+		{
+			totalCnt: 21,
+			needCnt:  0,
+			needPage: 3,
+			isMax:    true,
+		},
+		{
+			totalCnt: 100,
+			needCnt:  9,
+			needPage: 1,
+		},
+		{
+			totalCnt: 100,
+			needCnt:  11,
+			needPage: 2,
+		},
+		{
+			totalCnt: 100,
+			needCnt:  21,
+			needPage: 3,
+		},
+		{
+			totalCnt: 21,
+			needCnt:  1,
+			option:   types.FilterOption{Contain: []string{"sample"}},
+			needPage: 3,
+			isMax:    true,
+		},
+	}
+
+	for tc, v := range testcases {
+		needPage, isMax := calcMaxRequestPage(v.totalCnt, v.needCnt, &v.option)
+		if diff := cmp.Diff(v.needPage, needPage); diff != "" {
+			t.Errorf("%d: diff %v", tc, diff)
+		}
+		if diff := cmp.Diff(v.isMax, isMax); diff != "" {
+			t.Errorf("%d: diff %v", tc, diff)
+		}
+
+	}
+
+}
