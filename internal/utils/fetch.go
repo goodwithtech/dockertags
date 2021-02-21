@@ -40,7 +40,7 @@ func FetchLatestVersion(ctx context.Context) (version string, err error) {
 	log.Logger.Debug("Fetch latest version from github")
 	body, err := fetchURL(
 		ctx,
-		"https://github.com/goodwithtech/dockle/releases/latest",
+		"https://github.com/goodwithtech/dockertags/releases/latest",
 		&http.Cookie{Name: "user_session", Value: "guard"},
 		enoughLength,
 	)

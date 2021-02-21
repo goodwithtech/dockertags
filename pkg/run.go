@@ -36,7 +36,7 @@ func Run(c *cli.Context) (err error) {
 
 	var imageName string
 	if imageName, err = fetchImageName(c.Args()); err != nil {
-		log.Logger.Fatalf("A new version %s is now available! You have %s.", latestVersion, cliVersion)
+		log.Logger.Fatalf("%s", err)
 	}
 
 	reqOpt, filterOpt, err := genOpts(c)
