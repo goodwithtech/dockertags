@@ -49,7 +49,7 @@ func (p *DockerHub) Run(ctx context.Context, domain, repository string, reqOpt *
 	totalTagSummary := tagResp.Results
 	lastPage, isMax := calcMaxRequestPage(tagResp.Count, reqOpt.MaxCount, filterOpt)
 	if !isMax {
-		log.Logger.Infof("Dockertags liints the requests. Use --limit=0 flag if you want to fetch all tags.")
+		log.Logger.Debugf("Dockertags limits the requests. Use --limit=0 flag if you want to fetch all tags.")
 	}
 	// 1st page already requested
 	if lastPage > 1 {
