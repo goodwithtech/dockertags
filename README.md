@@ -1,7 +1,7 @@
 <img src="assets/dockertags.png" width="300" />
 
 Show information of container images ordered by recently updated. <br />
-Now supporting Docker Hub, GCR (Google Container Registry) and Amazon ECR (Elastic Container Registry).
+Now supporting Docker Hub, GitHub Container Repository (ghcr.io), GCR (Google Container Registry) and Amazon ECR (Elastic Container Registry).
 
 ## Quick Start
 
