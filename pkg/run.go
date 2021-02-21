@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	l "log"
@@ -23,12 +24,15 @@ func Run(c *cli.Context) (err error) {
 		l.Fatal(err)
 	}
 	cliVersion := "v" + c.App.Version
-	latestVersion, err := utils.FetchLatestVersion()
+	ctx, cancel := context.WithTimeout(context.Background(), c.Duration("timeout"))
+	defer cancel()
+	latestVersion, err := utils.FetchLatestVersion(ctx)
 	// check latest version
-	if err == nil && cliVersion != latestVersion && c.App.Version != "dev" {
+	if err != nil {
+		log.Logger.Debugf("Failed to check latest version. %s", err)
+	} else if cliVersion != latestVersion && c.App.Version != "dev" {
 		log.Logger.Warnf("A new version %s is now available! You have %s.", latestVersion, cliVersion)
 	}
-	err = nil
 
 	var imageName string
 	if imageName, err = fetchImageName(c.Args()); err != nil {
