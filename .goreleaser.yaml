@@ -77,7 +77,7 @@ brews:
     homepage: "https://github.com/goodwithtech/dockertags"
     description: "a CLI tool for fetching container image tags."
     test: |
-      system "#{bin}/program --version"
+      system "#{bin}/dockertags --version"
 
 dockers:
   - image_templates:

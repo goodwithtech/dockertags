@@ -1,6 +1,6 @@
 module github.com/goodwithtech/dockertags
 
-go 1.13
+go 1.16
 
 replace github.com/docker/cli => github.com/docker/cli v0.0.0-20180920165730-54c19e67f69c
 
