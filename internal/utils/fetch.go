@@ -13,7 +13,7 @@ import (
 var versionPattern = regexp.MustCompile(`v[0-9]+\.[0-9]+\.[0-9]+`)
 
 // Dockertags just want to check latest version string. No need to readall.
-const enoughLength = 8000
+const enoughLength = 16000
 
 func fetchURL(ctx context.Context, url string, cookie *http.Cookie, dataLen int) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
