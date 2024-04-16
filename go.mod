@@ -10,7 +10,7 @@ require (
 	github.com/GoogleCloudPlatform/docker-credential-gcr v1.5.0
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
-	github.com/aws/aws-sdk-go v1.23.17
+	github.com/aws/aws-sdk-go v1.34.0
 	github.com/containerd/continuity v0.0.0-20190827140505-75bee3e2ccb6 // indirect
 	github.com/docker/cli v0.0.0-20180920165730-54c19e67f69c
 	github.com/docker/distribution v2.7.1+incompatible
