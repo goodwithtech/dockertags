@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go v1.23.17
 	github.com/containerd/continuity v0.0.0-20190827140505-75bee3e2ccb6 // indirect
 	github.com/docker/cli v0.0.0-20180920165730-54c19e67f69c
-	github.com/docker/distribution v2.7.1+incompatible
+	github.com/docker/distribution v2.8.2+incompatible
 	github.com/docker/docker v0.0.0-20180924202107-a9c061deec0f
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
